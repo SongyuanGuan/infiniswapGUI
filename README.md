@@ -1,7 +1,24 @@
-# grafana
-summer research project
+# infiniswapGUI
+* MAC OS mysql login <br>
+/usr/local/mysql/bin/mysql -u root -p
 
-login database: mysql -u root -p
-use python-mysql to execute
+* general information table <br>
+CREATE TABLE general_info(
+    id INT NOT NULL AUTO_INCREMENT,
+    pagein_speed INT NOT NULL,
+    pageout_speed INT NOT NULL,
+    pagein_latency INT NOT NULL,
+    pageout_latency INT NOT NULL,
+    time timestamp,
+    device_num INT,
+    RAM_used INT,
+    RAM_unused INT,
+    RAM_allocated INT,
+    PRIMARY KEY ( id )
+    );
 
-next step: 1) create a database 2) link database to grafana
+* block device table <br>
+CREATE TABLE block_device(  id INT NOT NULL AUTO_INCREMENT, dev_id INT NOT NULL, 
+pagein_speed INT NOT NULL, pageout_speed INT NOT NULL, pagein_latency INT NOT NULL,
+pageout_latency INT NOT NULL, time timestamp, PRIMARY KEY ( id ) );
+>>>>>>> 52f1569c310c2619bcfe29ff8e9fe2e79619d315
