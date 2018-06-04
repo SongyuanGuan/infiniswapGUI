@@ -21,4 +21,3 @@ CREATE TABLE general_info(
 CREATE TABLE block_device(  id INT NOT NULL AUTO_INCREMENT, dev_id INT NOT NULL, 
 pagein_speed INT NOT NULL, pageout_speed INT NOT NULL, pagein_latency INT NOT NULL,
 pageout_latency INT NOT NULL, time timestamp, PRIMARY KEY ( id ) );
->>>>>>> 52f1569c310c2619bcfe29ff8e9fe2e79619d315
