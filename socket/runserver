@@ -1,0 +1,3 @@
+#!/bin/bash
+
+g++ -o master master.cpp -I /usr/local/mysql/include -L /usr/local/mysql/lib -lmysqlclient
