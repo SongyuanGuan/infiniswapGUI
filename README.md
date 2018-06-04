@@ -1,6 +1,6 @@
 # infiniswapGUI
 * MAC OS mysql login
-/usr/local/mysql/bin/mysql -u root -p
+** /usr/local/mysql/bin/mysql -u root -p
 
 * general information table
 CREATE TABLE general_info(
