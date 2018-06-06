@@ -10,6 +10,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include <cstring>
 #include "grafana_socket.h"
 #include "mysql.h"
 
@@ -235,7 +236,7 @@ void connect_to_mysql()
         exit(EXIT_FAILURE);
     }
 
-    conn = mysql_real_connect(conn, "127.0.0.1", "grafanaReader", "123456", "Infiniswap",
+    conn = mysql_real_connect(conn, "127.0.0.1", "root", "mysql", "grafana",
                               0, NULL, 0);
 
     if (conn)
