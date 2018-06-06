@@ -1,4 +1,5 @@
 #include <iostream>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
@@ -81,7 +82,7 @@ static int server_init()
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    addr.sin_addr.s_addr = inet_addr("128.110.96.65");
     addr.sin_port = htons(hostport);
     bind(sock, (struct sockaddr *)&addr, sizeof(addr));
     socklen_t length = sizeof(addr);

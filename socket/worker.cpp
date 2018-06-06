@@ -1,4 +1,5 @@
 #include <iostream>
+#include <arpa/inet.h>
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
@@ -29,7 +30,7 @@ int main(int argc, char** argv)
         }
 
         server.sin_family = AF_INET;
-        server.sin_addr.s_addr = htonl(INADDR_ANY);
+        server.sin_addr.s_addr = inet_addr("128.110.96.95");
         server.sin_port = htons(hostport);
         if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
         {
