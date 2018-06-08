@@ -182,9 +182,9 @@ static voip process_data()
         // put the data into mysql
         char str[200];
         sprintf(str,
-                "INSERT INTO general_info (pagein_speed, pageout_speed, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_used, RAM_unused, RAM_allocated) VALUES (%d, %d, %d, %d, NOW(), %d, %d, %d, %d)",
+                "INSERT INTO general_info (pagein_speed, pageout_speed, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, NOW(), %d, %d, %d, %d)",
                 avg_pagein_speed, avg_pageout_speed, avg_pagein_latency, avg_pageout_latency,
-                ips.size(), total_bd, total_daemon, total_RAM_used, total_RAM_unused, total_RAM_allocated);
+                ips.size(), total_bd, total_daemon, total_RAM_free, total_RAM_filter_free, total_RAM_allocated, total_RAM_mapped);
         //cout << str << endl;
 
         put_data_into_mysql(str);
