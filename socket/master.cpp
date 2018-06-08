@@ -122,9 +122,9 @@ static void process_data()
         t -= (process_interval + delay_time);
         infos.select_infos(t, &msgs);
         ram_t total_ram;
-        memset(total_ram, 0, sizeof(ram_t));
+        memset(&total_ram, 0, sizeof(ram_t));
         IO_para avg_IO;
-        memset(avg_IO, 0, sizeof(IO_para));
+        memset(&avg_IO, 0, sizeof(IO_para));
         int total_bd = 0, total_daemon = 0;
         unordered_set<string> ips;
         unordered_map<string, int> ip_times;
