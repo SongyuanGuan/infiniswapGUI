@@ -145,7 +145,7 @@ static void process_data()
                     }
                     if (info.daemon_on)
                     {
-                        total_daemon++;
+                        total_daemon++
                     }
                 }
                 else
@@ -160,11 +160,14 @@ static void process_data()
             {
                 //get average for each ip
                 ip_average[ip].ram = ip_average[ip].ram / ip_times[ip];
-                ip_average[ip].IO = ip_average[ip].IO / ip_times[ip]; 
+                ip_average[ip].IO = ip_average[ip].IO / ip_times[ip];
                 total_ram = total_ram + ip_average[ip].ram;
                 avg_IO = avg_IO + ip_average[ip].IO;
             }
-            avg_IO = avg_IO / total_bd;
+            if (total_bd > 1)
+            {
+                avg_IO = avg_IO / total_bd;
+            }
         }
         tm *my_tm = localtime(&t);
         char timestamp[30];
@@ -191,12 +194,15 @@ static void process_request(request_msg msg)
     cout << "ip is " << msg.ip << endl;
     //cout << "time is " << msg.time << " " << ctime(&msg.time) << endl;
     infos.add_info(msg);
-    char str[200];
-    sprintf(str,
-            "INSERT INTO block_device (dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
-            msg.ip, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency);
-    cout << str << endl;
-    put_data_into_mysql(str);
+    if (msg.bd_on)
+    {
+        char str[200];
+        sprintf(str,
+                "INSERT INTO block_device (dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
+                msg.ip, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency);
+        cout << str << endl;
+        put_data_into_mysql(str);
+    }
 }
 
 static void deal_request(int msgsock)
