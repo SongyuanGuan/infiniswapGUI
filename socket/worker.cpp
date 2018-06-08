@@ -77,7 +77,7 @@ int main(int argc, char** argv)
     while (true)
     {
         request_msg msg;
-        //memset(&msg, 0, sizeof(request_msg));
+        memset(&msg, 0, sizeof(request_msg));
         read_bd(msg);
         read_daemon(msg);
         send_to_server(msg);

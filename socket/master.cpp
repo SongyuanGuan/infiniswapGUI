@@ -137,11 +137,19 @@ static void process_data()
                 avg_pagein_latency += info.pagein_latency;
                 avg_pageout_latency += info.pageout_latency;
                 string info_ip = info.ip;
-		if (ips.find(info_ip) == ips.end())
+                if (ips.find(info_ip) == ips.end())
                 {
                     ips.insert(info_ip);
                     ip_times[info_ip] = 1;
                     ip_average[info_ip] = info.ram;
+                    if (info.bd_on)
+                    {
+                        total_bd++;
+                    }
+                    if (info.daemon_on)
+                    {
+                        total_daemon++;
+                    }
                 }
                 else
                 {
@@ -150,12 +158,6 @@ static void process_data()
                     ip_average[info_ip].free += info.ram.free;
                     ip_average[info_ip].filter_free += info.ram.filter_free;
                     ip_average[info_ip].allocated_not_mapped += info.ram.allocated_not_mapped;
-                }
-                if (info.bd_on){
-                    total_bd++;
-                }
-                if (info.daemon_on){
-                    total_daemon++;
                 }
             }
             for (string ip : ips)
