@@ -207,7 +207,7 @@ static void process_request(request_msg msg)
         char str[200];
         sprintf(str,
                 "INSERT INTO daemon (dev_ip, RAM_free, RAM_filter_free, RAM_mapped, RAM_allocated, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
-                msg.ip, msg.ram.free, msg.ran.filter_free, msg.ram.mapped, msg.IO.allocated_not_mapped);
+                msg.ip, msg.ram.free, msg.ram.filter_free, msg.ram.mapped, msg.ram.allocated_not_mapped);
         cout << str << endl;
         put_data_into_mysql(str); 
     }
