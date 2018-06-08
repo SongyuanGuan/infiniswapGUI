@@ -9,6 +9,7 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <fstream>
+#include <cstring>
 #include "grafana_socket.h"
 
 using namespace std;
@@ -54,14 +55,19 @@ void read_bd(request_msg & msg){
 void read_daemon(request_msg & msg){
     ifstream ifile;
     ifile.open("/tmp/daemon");
-    ifile >> msg.deamon_on;
-    if (msg.deamon_on){
+    ifile >> msg.daemon_on;
+cout << msg.daemon_on << endl;
+    if (msg.daemon_on){
         int version;
         ifile >> version;
         if (version != last_version){
+		cout << version << endl;
             last_version = version;
             ifile >> msg.ram.free >> msg.ram.filter_free >> msg.ram.allocated_not_mapped >> msg.ram.mapped;
         }
+	else {
+		msg.daemon_on = false;
+	}
     }
     ifile.close();
 }
@@ -71,7 +77,7 @@ int main(int argc, char** argv)
     while (true)
     {
         request_msg msg;
-        memset(&msg, 0, sizeof(msg));
+        //memset(&msg, 0, sizeof(request_msg));
         read_bd(msg);
         read_daemon(msg);
         send_to_server(msg);

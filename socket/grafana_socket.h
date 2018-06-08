@@ -19,7 +19,7 @@ struct ram_t{
 struct request_msg{
     std::string ip;
     bool bd_on;
-    bool deamon_on;
+    bool daemon_on;
     //char time[14]; // yyyymmddhhmmss
     time_t time;
     ram_t ram;
