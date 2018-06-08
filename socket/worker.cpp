@@ -14,65 +14,82 @@
 
 using namespace std;
 
-const string ip = "192.168.0.57";
+const char *ip = "192.168.0.57";
+const char *swap_area = "/dev/infiniswap0";
 int last_version = -1;
 
-void send_to_server(request_msg & msg){
+void send_to_server(request_msg &msg)
+{
     int sock;
-        struct sockaddr_in server;
-        char buf[1024];
-        /* Create socket. */
-        sock = socket(AF_INET, SOCK_STREAM, 0);
-        if (sock == -1)
-        {
-            perror("opening stream socket");
-            exit(1);
-        }
+    struct sockaddr_in server;
+    char buf[1024];
+    /* Create socket. */
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        perror("opening stream socket");
+        exit(1);
+    }
 
-        server.sin_family = AF_INET;
-        server.sin_addr.s_addr = inet_addr("128.110.96.95");
-        server.sin_port = htons(hostport);
-        if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
-        {
-            perror("connecting stream socket");
-            exit(1);
-        }
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = inet_addr("128.110.96.95");
+    server.sin_port = htons(hostport);
+    if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
+    {
+        perror("connecting stream socket");
+        exit(1);
+    }
 
-        strcpy(msg.ip, ip.c_str());
-        msg.pagein_speed = rand() % 100 + 50;
-        msg.pageout_speed = rand() % 100 + 100;
-        msg.pagein_latency = rand() % 20 + 10;
-        msg.pageout_latency = rand() % 20 + 10;
-        msg.time = time(0);
-        send(sock, &msg, sizeof(request_msg), 0);
-        close(sock);
+    strcpy(msg.ip, ip);
+    msg.time = time(0);
+
+    send(sock, &msg, sizeof(request_msg), 0);
+    close(sock);
 }
 
-void read_bd(request_msg & msg){
-
+void read_bd(request_msg &msg)
+{
+    char cmd[100];
+    sprintf(cmd, "swapon -s | grep %s | wc -l > /tmp/bd_on", swap_area);
+    system(cmd);
+    ifstream ifile;
+    ifile.open("/tmp/bd_on");
+    ifile >> msg.bd_on;
+    ifile.close();
+    if (msg.bd_on)
+    {
+        msg.IO.pagein_speed = rand() % 100 + 50;
+        msg.IO.pageout_speed = rand() % 100 + 100;
+        msg.IO.pagein_latency = rand() % 20 + 10;
+        msg.IO.pageout_latency = rand() % 20 + 10;
+    }
 }
 
-void read_daemon(request_msg & msg){
+void read_daemon(request_msg &msg)
+{
     ifstream ifile;
     ifile.open("/tmp/daemon");
     ifile >> msg.daemon_on;
-cout << msg.daemon_on << endl;
-    if (msg.daemon_on){
+    if (msg.daemon_on)
+    {
         int version;
         ifile >> version;
-        if (version != last_version){
-		cout << version << endl;
+        //valid data if version is different 
+        if (version != last_version)
+        {
+            cout << version << endl;
             last_version = version;
             ifile >> msg.ram.free >> msg.ram.filter_free >> msg.ram.allocated_not_mapped >> msg.ram.mapped;
         }
-	else {
-		msg.daemon_on = false;
-	}
+        else
+        {
+            msg.daemon_on = false;
+        }
     }
     ifile.close();
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     while (true)
     {

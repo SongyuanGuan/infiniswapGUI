@@ -121,27 +121,24 @@ static void process_data()
         time_t t = time(0);
         t -= (process_interval + delay_time);
         infos.select_infos(t, &msgs);
-        int total_RAM_free = 0, total_RAM_filter_free = 0, total_RAM_mapped = 0, total_RAM_allocated = 0;
-        int avg_pagein_speed = 0, avg_pageout_speed = 0;
-        int avg_pagein_latency = 0, avg_pageout_latency = 0;
+        ram_t total_ram;
+        memset(total_ram, 0, sizeof(ram_t));
+        IO_para avg_IO;
+        memset(avg_IO, 0, sizeof(IO_para));
         int total_bd = 0, total_daemon = 0;
         unordered_set<string> ips;
         unordered_map<string, int> ip_times;
-        unordered_map<string, ram_t> ip_average;
+        unordered_map<string, request_msg> ip_average;
         if (!msgs.empty())
         {
             for (request_msg info : msgs)
             {
-                avg_pagein_speed += info.pagein_speed;
-                avg_pageout_speed += info.pageout_speed;
-                avg_pagein_latency += info.pagein_latency;
-                avg_pageout_latency += info.pageout_latency;
                 string info_ip = info.ip;
                 if (ips.find(info_ip) == ips.end())
                 {
                     ips.insert(info_ip);
                     ip_times[info_ip] = 1;
-                    ip_average[info_ip] = info.ram;
+                    ip_average[info_ip] = info;
                     if (info.bd_on)
                     {
                         total_bd++;
@@ -154,27 +151,20 @@ static void process_data()
                 else
                 {
                     ip_times[info_ip]++;
-                    ip_average[info_ip].mapped += info.ram.mapped;
-                    ip_average[info_ip].free += info.ram.free;
-                    ip_average[info_ip].filter_free += info.ram.filter_free;
-                    ip_average[info_ip].allocated_not_mapped += info.ram.allocated_not_mapped;
+                    //sum up
+                    ip_average[info_ip].ram = ip_average[info_ip].ram + info.ram;
+                    ip_average[info_ip].IO = ip_average[info_ip].IO + info.IO;
                 }
             }
             for (string ip : ips)
             {
-                ip_average[ip].free /= ip_times[ip];
-                ip_average[ip].filter_free /= ip_times[ip];
-                ip_average[ip].allocated_not_mapped /= ip_times[ip];
-                ip_average[ip].mapped /= ip_times[ip];
-                total_RAM_free += ip_average[ip].free;
-                total_RAM_filter_free += ip_average[ip].filter_free;
-                total_RAM_mapped += ip_average[ip].mapped;
-                total_RAM_allocated += ip_average[ip].allocated_not_mapped;
+                //get average for each ip
+                ip_average[ip].ram = ip_average[ip].ram / ip_times[ip];
+                ip_average[ip].IO = ip_average[ip].IO / ip_times[ip]; 
+                total_ram = total_ram + ip_average[ip].ram;
+                avg_IO = avg_IO + ip_average[ip].IO;
             }
-            avg_pagein_speed /= msgs.size();
-            avg_pageout_speed /= msgs.size();
-            avg_pagein_latency /= msgs.size();
-            avg_pageout_latency /= msgs.size();
+            avg_IO = avg_IO / total_bd;
         }
         tm *my_tm = localtime(&t);
         char timestamp[30];
@@ -186,8 +176,8 @@ static void process_data()
         char str[200];
         sprintf(str,
                 "INSERT INTO general_info (pagein_speed, pageout_speed, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
-                avg_pagein_speed, avg_pageout_speed, avg_pagein_latency, avg_pageout_latency,
-                ips.size(), total_bd, total_daemon, total_RAM_free, total_RAM_filter_free, total_RAM_allocated, total_RAM_mapped);
+                avg_IO.pagein_speed, avg_IO.pageout_speed, avg_IO.pagein_latency, avg_IO.pageout_latency,
+                ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
         cout << str << endl;
 
         put_data_into_mysql(str);
@@ -204,7 +194,7 @@ static void process_request(request_msg msg)
     char str[200];
     sprintf(str,
             "INSERT INTO block_device (dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
-            msg.ip, msg.pagein_speed, msg.pageout_speed, msg.pagein_latency, msg.pageout_latency);
+            msg.ip, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency);
     cout << str << endl;
     put_data_into_mysql(str);
 }
@@ -215,7 +205,6 @@ static void deal_request(int msgsock)
     request_msg msg;
     recv(msgsock, &msg, sizeof(msg), MSG_WAITALL);
     process_request(msg);
-    //sleep(3);
     close(msgsock);
 }
 
