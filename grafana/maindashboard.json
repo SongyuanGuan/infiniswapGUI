@@ -1,61 +1,8 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_INFINISWAP",
-      "label": "infiniswap",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "mysql",
-      "pluginName": "MySQL"
-    }
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "5.1.3"
-    },
-    {
-      "type": "panel",
-      "id": "grafana-piechart-panel",
-      "name": "Pie Chart",
-      "version": "1.3.1"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "mysql",
-      "name": "MySQL",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "singlestat",
-      "name": "Singlestat",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "table",
-      "name": "Table",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "text",
-      "name": "Text",
-      "version": "5.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
+        "$$hashKey": "object:2236",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -69,8 +16,7 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
-  "iteration": 1528138592823,
+  "id": 1,
   "links": [
     {
       "icon": "external link",
@@ -88,7 +34,7 @@
         "rgba(237, 129, 40, 0.89)",
         "#d44a3a"
       ],
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "format": "none",
       "gauge": {
         "maxValue": 100,
@@ -98,8 +44,8 @@
         "thresholdMarkers": true
       },
       "gridPos": {
-        "h": 9,
-        "w": 6,
+        "h": 8,
+        "w": 3,
         "x": 0,
         "y": 0
       },
@@ -143,8 +89,15 @@
           "alias": "",
           "format": "time_series",
           "hide": false,
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  device_num as value,\n  \"number of device\" as metric\nFROM general_info\nWHERE $__timeFilter(time) and device_num in($device)\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  device_num as value,\n  \"number of device\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\n",
           "refId": "A"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "hide": true,
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  daemon_num as value,\n  \"number of daemon\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\n",
+          "refId": "B"
         }
       ],
       "thresholds": "2,3",
@@ -161,14 +114,95 @@
       "valueName": "current"
     },
     {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": true,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "Infiniswap",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 3,
+        "y": 0
+      },
+      "id": 9,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": true,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": true
+      },
+      "tableColumn": "time_sec",
+      "targets": [
+        {
+          "alias": "",
+          "format": "time_series",
+          "hide": false,
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  bd_num as value,\n  \"number of block device\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\n",
+          "refId": "B"
+        }
+      ],
+      "thresholds": "2,3",
+      "title": "Number of Block Device",
+      "type": "singlestat",
+      "valueFontSize": "110%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fill": 1,
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 10,
         "x": 6,
         "y": 0
@@ -248,10 +282,10 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fill": 1,
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 8,
         "x": 16,
         "y": 0
@@ -327,6 +361,87 @@
       }
     },
     {
+      "cacheTimeout": null,
+      "colorBackground": false,
+      "colorValue": true,
+      "colors": [
+        "#299c46",
+        "rgba(237, 129, 40, 0.89)",
+        "#d44a3a"
+      ],
+      "datasource": "Infiniswap",
+      "format": "none",
+      "gauge": {
+        "maxValue": 100,
+        "minValue": 0,
+        "show": false,
+        "thresholdLabels": false,
+        "thresholdMarkers": true
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 3,
+        "x": 3,
+        "y": 4
+      },
+      "id": 10,
+      "interval": null,
+      "links": [],
+      "mappingType": 1,
+      "mappingTypes": [
+        {
+          "name": "value to text",
+          "value": 1
+        },
+        {
+          "name": "range to text",
+          "value": 2
+        }
+      ],
+      "maxDataPoints": 100,
+      "nullPointMode": "connected",
+      "nullText": null,
+      "postfix": "",
+      "postfixFontSize": "50%",
+      "prefix": "",
+      "prefixFontSize": "50%",
+      "rangeMaps": [
+        {
+          "from": "null",
+          "text": "N/A",
+          "to": "null"
+        }
+      ],
+      "sparkline": {
+        "fillColor": "rgba(31, 118, 189, 0.18)",
+        "full": true,
+        "lineColor": "rgb(31, 120, 193)",
+        "show": true
+      },
+      "tableColumn": "time_sec",
+      "targets": [
+        {
+          "alias": "",
+          "format": "time_series",
+          "hide": false,
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  daemon_num as value,\n  \"number of daemon\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\n",
+          "refId": "B"
+        }
+      ],
+      "thresholds": "2,3",
+      "title": "Number of Daemon",
+      "type": "singlestat",
+      "valueFontSize": "110%",
+      "valueMaps": [
+        {
+          "op": "=",
+          "text": "N/A",
+          "value": "null"
+        }
+      ],
+      "valueName": "current"
+    },
+    {
       "aliasColors": {},
       "breakPoint": "50%",
       "cacheTimeout": null,
@@ -334,14 +449,14 @@
         "label": "Others",
         "threshold": 0
       },
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fontSize": "80%",
       "format": "short",
       "gridPos": {
         "h": 8,
         "w": 6,
         "x": 0,
-        "y": 9
+        "y": 8
       },
       "id": 2,
       "interval": null,
@@ -361,13 +476,13 @@
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_used as value,\n  \"used\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_free as value,\n  \"free\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n\n",
           "refId": "A"
         },
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_unused as value,\n  \"unused\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_mapped as value,\n  \"used\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n",
           "refId": "B"
         },
         {
@@ -388,13 +503,13 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fill": 1,
       "gridPos": {
         "h": 8,
         "w": 10,
         "x": 6,
-        "y": 9
+        "y": 8
       },
       "id": 5,
       "legend": {
@@ -473,13 +588,13 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fill": 1,
       "gridPos": {
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 9
+        "y": 8
       },
       "id": 6,
       "legend": {
@@ -553,13 +668,13 @@
     },
     {
       "columns": [],
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fontSize": "100%",
       "gridPos": {
-        "h": 6,
-        "w": 14,
+        "h": 5,
+        "w": 24,
         "x": 0,
-        "y": 17
+        "y": 16
       },
       "id": 7,
       "links": [],
@@ -596,21 +711,76 @@
         {
           "alias": "",
           "format": "table",
-          "rawSql": "SELECT time, pagein_speed, pageout_speed, pagein_latency, pageout_latency FROM general_info",
+          "rawSql": "SELECT dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency FROM block_device GROUP BY dev_ip ",
           "refId": "A"
         }
       ],
-      "title": "",
+      "timeFrom": null,
+      "title": "Block Device Info",
       "transform": "table",
       "type": "table"
     },
     {
-      "content": " Device number: <input type=\"text\" id=\"num\"/><input type=\"button\" onclick=\"javascript:goto_blockdevice();\" value=\"submit\">\n    <script language=\"javascript\">\n    function goto_blockdevice(){\n        var num = document.getElementById(\"num\").value;\n        var href = \"http://127.0.0.1:3000/d/DxYJ2HSiz/block_device?orgId=1&from=now-5m&to=now&refresh=5s&panelId=2&var-device_id=\" + num;\n        //alert(href);\n        window.location.href = href;\n    }\n    </script>\n    <a href=\"http://127.0.0.1:3000/d/DxYJ2HSiz/block_device?orgId=1&from=now-5m&to=now&refresh=5s&panelId=2&var-device_id=1\"> link </a>\n    ",
+      "columns": [],
+      "datasource": "Infiniswap",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 21
+      },
+      "id": 11,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "alias": "",
+          "format": "table",
+          "rawSql": "SELECT dev_ip, RAM_free, RAM_filter_free, RAM_mapped, RAM_allocated FROM daemon GROUP BY dev_ip",
+          "refId": "A"
+        }
+      ],
+      "timeFrom": null,
+      "title": "Daemon Info",
+      "transform": "table",
+      "type": "table"
+    },
+    {
+      "content": " Device number: <input type=\"text\" id=\"num\"/><input type=\"button\" onclick=\"javascript:goto_blockdevice();\" value=\"submit\">\n    <script language=\"javascript\">\n    function goto_blockdevice(){\n        var num = document.getElementById(\"num\").value;\n        var href = \"http://128.110.96.95:3000/d/DxYJ2HSiz/block_device?orgId=1&from=now-5m&to=now&refresh=5s&panelId=2&var-device_id=\" + num;\n        //alert(href);\n        window.location.href = href;\n    }\n    </script>\n    <a href=\"http://128.110.96.95:3000/d/DxYJ2HSiz/block_device?orgId=1&from=now-5m&to=now&refresh=5s&panelId=2&var-device_id=1\"> link </a>\n    ",
       "gridPos": {
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 23
+        "y": 26
       },
       "id": 8,
       "links": [],
@@ -624,65 +794,7 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": [
-      {
-        "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "1",
-          "value": "1"
-        },
-        "hide": 0,
-        "includeAll": false,
-        "label": "var",
-        "multi": false,
-        "name": "var",
-        "options": [
-          {
-            "selected": false,
-            "text": "pagein_speed",
-            "value": "pagein_speed"
-          },
-          {
-            "selected": false,
-            "text": "pageout_speed",
-            "value": "pageout_speed"
-          },
-          {
-            "selected": false,
-            "text": "general_info",
-            "value": "general_info"
-          },
-          {
-            "selected": true,
-            "text": "1",
-            "value": "1"
-          }
-        ],
-        "query": "pagein_speed, pageout_speed, general_info,1",
-        "type": "custom"
-      },
-      {
-        "allValue": null,
-        "current": {},
-        "datasource": "${DS_INFINISWAP}",
-        "hide": 0,
-        "includeAll": false,
-        "label": null,
-        "multi": false,
-        "name": "device",
-        "options": [],
-        "query": "select device_num from general_info",
-        "refresh": 1,
-        "regex": "",
-        "sort": 0,
-        "tagValuesQuery": "",
-        "tags": [],
-        "tagsQuery": "",
-        "type": "query",
-        "useTags": false
-      }
-    ]
+    "list": []
   },
   "time": {
     "from": "now-15m",
@@ -714,7 +826,7 @@
     ]
   },
   "timezone": "",
-  "title": "infiniswap",
+  "title": "General Info",
   "uid": "000000003",
-  "version": 15
+  "version": 7
 }

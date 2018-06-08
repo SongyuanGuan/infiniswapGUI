@@ -1,43 +1,8 @@
 {
-  "__inputs": [
-    {
-      "name": "DS_INFINISWAP",
-      "label": "infiniswap",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "mysql",
-      "pluginName": "MySQL"
-    } 
-  ],
-  "__requires": [
-    {
-      "type": "grafana",
-      "id": "grafana",
-      "name": "Grafana",
-      "version": "5.1.3"
-    },
-    {
-      "type": "panel",
-      "id": "graph",
-      "name": "Graph",
-      "version": "5.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "mysql",
-      "name": "MySQL",
-      "version": "5.0.0"
-    },
-    {
-      "type": "panel",
-      "id": "text",
-      "name": "Text",
-      "version": "5.0.0"
-    }
-  ],
   "annotations": {
     "list": [
       {
+        "$$hashKey": "object:86",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -51,16 +16,22 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": null,
-  "iteration": 1528140571369,
-  "links": [],
+  "id": 2,
+  "iteration": 1528484236690,
+  "links": [
+    {
+      "icon": "external link",
+      "tags": [],
+      "type": "dashboards"
+    }
+  ],
   "panels": [
     {
       "aliasColors": {},
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -94,7 +65,7 @@
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_speed as value,\n  \"page in speed\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_id = $device_id\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_speed as value,\n  \"page in speed\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
           "refId": "A"
         }
       ],
@@ -143,7 +114,7 @@
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -177,7 +148,7 @@
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_speed as value,\n  \"page out speed\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_id = $device_id\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_speed as value,\n  \"page out speed\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
           "refId": "A"
         }
       ],
@@ -222,11 +193,13 @@
       }
     },
     {
-      "aliasColors": {},
+      "aliasColors": {
+        "page in latency": "#e24d42"
+      },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -258,9 +231,10 @@
       "steppedLine": false,
       "targets": [
         {
+          "$$hashKey": "object:152",
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_latency as value,\n  \"page in latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_id = $device_id\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_latency as value,\n  \"page in latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
           "refId": "A"
         }
       ],
@@ -305,11 +279,13 @@
       }
     },
     {
-      "aliasColors": {},
+      "aliasColors": {
+        "page out latency": "#e24d42"
+      },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
-      "datasource": "${DS_INFINISWAP}",
+      "datasource": "Infiniswap",
       "fill": 1,
       "gridPos": {
         "h": 9,
@@ -343,7 +319,7 @@
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_latency as value,\n  \"page out latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_id = $device_id\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_latency as value,\n  \"page out latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
           "refId": "A"
         }
       ],
@@ -410,15 +386,18 @@
     "list": [
       {
         "allValue": null,
-        "current": {},
-        "datasource": "${DS_INFINISWAP}",
+        "current": {
+          "text": "192.168.0.56",
+          "value": "192.168.0.56"
+        },
+        "datasource": "Infiniswap",
         "hide": 0,
         "includeAll": false,
         "label": null,
         "multi": false,
-        "name": "device_id",
+        "name": "device_ip",
         "options": [],
-        "query": "select dev_id from block_device",
+        "query": "select dev_ip from block_device",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -462,5 +441,5 @@
   "timezone": "",
   "title": "block_device",
   "uid": "DxYJ2HSiz",
-  "version": 7
+  "version": 6
 }

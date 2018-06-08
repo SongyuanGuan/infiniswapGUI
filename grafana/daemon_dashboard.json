@@ -1,0 +1,148 @@
+{
+    "annotations": {
+      "list": [
+        {
+          "$$hashKey": "object:2571",
+          "builtIn": 1,
+          "datasource": "-- Grafana --",
+          "enable": true,
+          "hide": true,
+          "iconColor": "rgba(0, 211, 255, 1)",
+          "name": "Annotations & Alerts",
+          "type": "dashboard"
+        }
+      ]
+    },
+    "editable": true,
+    "gnetId": null,
+    "graphTooltip": 0,
+    "id": 4,
+    "iteration": 1528484105246,
+    "links": [
+      {
+        "asDropdown": false,
+        "icon": "external link",
+        "tags": [],
+        "type": "dashboards"
+      }
+    ],
+    "panels": [
+      {
+        "aliasColors": {},
+        "breakPoint": "50%",
+        "cacheTimeout": null,
+        "combine": {
+          "label": "Others",
+          "threshold": 0
+        },
+        "datasource": "Infiniswap",
+        "fontSize": "80%",
+        "format": "short",
+        "gridPos": {
+          "h": 10,
+          "w": 15,
+          "x": 0,
+          "y": 0
+        },
+        "id": 2,
+        "interval": null,
+        "legend": {
+          "show": true,
+          "values": true
+        },
+        "legendType": "Under graph",
+        "links": [],
+        "maxDataPoints": 3,
+        "nullPointMode": "connected",
+        "pieType": "pie",
+        "strokeWidth": 1,
+        "targets": [
+          {
+            "alias": "",
+            "format": "time_series",
+            "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_free as value,\n  \"free\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC\n",
+            "refId": "A"
+          },
+          {
+            "alias": "",
+            "format": "time_series",
+            "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_mapped as value,\n  \"used\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC\n",
+            "refId": "B"
+          },
+          {
+            "alias": "",
+            "format": "time_series",
+            "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_allocated as value,\n  \"allocated but not used\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC",
+            "refId": "C"
+          }
+        ],
+        "title": "Panel Title",
+        "type": "grafana-piechart-panel",
+        "valueName": "current"
+      }
+    ],
+    "refresh": "10s",
+    "schemaVersion": 16,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+      "list": [
+        {
+          "allValue": null,
+          "current": {
+            "text": "192.168.0.57",
+            "value": "192.168.0.57"
+          },
+          "datasource": "Infiniswap",
+          "hide": 0,
+          "includeAll": false,
+          "label": null,
+          "multi": false,
+          "name": "device_ip",
+          "options": [],
+          "query": "select dev_ip from daemon",
+          "refresh": 1,
+          "regex": "",
+          "sort": 0,
+          "tagValuesQuery": "",
+          "tags": [],
+          "tagsQuery": "",
+          "type": "query",
+          "useTags": false
+        }
+      ]
+    },
+    "time": {
+      "from": "now-15m",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": [
+        "5s",
+        "10s",
+        "30s",
+        "1m",
+        "5m",
+        "15m",
+        "30m",
+        "1h",
+        "2h",
+        "1d"
+      ],
+      "time_options": [
+        "5m",
+        "15m",
+        "1h",
+        "6h",
+        "12h",
+        "24h",
+        "2d",
+        "7d",
+        "30d"
+      ]
+    },
+    "timezone": "",
+    "title": "daemon",
+    "uid": "ztudW-Iiz",
+    "version": 2
+  }
