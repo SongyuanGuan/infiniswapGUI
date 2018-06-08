@@ -19,7 +19,7 @@ using namespace std;
 
 const int device_num = 5; // (max) total number of divices
 const int delay_time = 5; // process data before delay_time
-MYSQL *conn;
+
 class compare_by_time
 {
   public:
@@ -33,12 +33,12 @@ class all_info
 {
   public:
     priority_queue<request_msg, vector<request_msg>, compare_by_time> infos;
-    void add_info(request_msg msg)
+    voip add_info(request_msg msg)
     {
         infos.push(msg);
     }
     //select infos from time to time+interval
-    void select_infos(time_t time, vector<request_msg> *msgs)
+    voip select_infos(time_t time, vector<request_msg> *msgs)
     {
         while (true)
         {
@@ -63,6 +63,7 @@ class all_info
     }
 };
 
+MYSQL *conn;
 all_info infos;
 
 static int server_init()
@@ -96,7 +97,7 @@ static int server_init()
     return sock;
 }
 
-static void put_data_into_mysql(char *str)
+static voip put_data_into_mysql(char *str)
 {
     int res = mysql_query(conn, str);
 
@@ -111,7 +112,7 @@ static void put_data_into_mysql(char *str)
     }
 }
 
-static void process_data()
+static voip process_data()
 {
     while (true)
     {
@@ -120,12 +121,13 @@ static void process_data()
         time_t t = time(0);
         t -= (process_interval + delay_time);
         infos.select_infos(t, &msgs);
-        int total_RAM_used = 0, total_RAM_unused = 0, total_RAM_allocated = 0;
+        int total_RAM_free = 0, total_RAM_filter_free = 0, total_RAM_mapped = 0, total_RAM_allocated = 0;
         int avg_pagein_speed = 0, avg_pageout_speed = 0;
         int avg_pagein_latency = 0, avg_pageout_latency = 0;
-        unordered_set<int> ids;
-        unordered_map<int, int> id_times;
-        unordered_map<int, ram_t> id_average;
+        int total_bd = 0, total_daemon = 0;
+        unordered_set<string> ips;
+        unordered_map<string, int> ip_times;
+        unordered_map<string, ram_t> ip_average;
         if (!msgs.empty())
         {
             for (request_msg info : msgs)
@@ -134,28 +136,37 @@ static void process_data()
                 avg_pageout_speed += info.pageout_speed;
                 avg_pagein_latency += info.pagein_latency;
                 avg_pageout_latency += info.pageout_latency;
-                if (ids.find(info.id) == ids.end())
+                if (ips.find(info.ip) == ips.end())
                 {
-                    ids.insert(info.id);
-                    id_times[info.id] = 1;
-                    id_average[info.id] = info.ram;
+                    ips.insert(info.ip);
+                    ip_times[info.ip] = 1;
+                    ip_average[info.ip] = info.ram;
                 }
                 else
                 {
-                    id_times[info.id]++;
-                    id_average[info.id].used += info.ram.used;
-                    id_average[info.id].unused += info.ram.unused;
-                    id_average[info.id].allocated += info.ram.allocated;
+                    ip_times[info.ip]++;
+                    ip_average[info.ip].mapped += info.ram.mapped;
+                    ip_average[info.ip].free += info.ram.free;
+                    ip_average[info.ip].filter_free += info.ram.filter_free;
+                    ip_average[info.ip].allocated_not_mapped += info.ram.allocated_not_mapped;
+                }
+                if (info.bd_on){
+                    total_bd++;
+                }
+                if (info.deamon_on){
+                    total_daemon++;
                 }
             }
-            for (int id : ids)
+            for (string ip : ips)
             {
-                id_average[id].used /= id_times[id];
-                id_average[id].unused /= id_times[id];
-                id_average[id].allocated /= id_times[id];
-                total_RAM_used += id_average[id].used;
-                total_RAM_unused += id_average[id].unused;
-                total_RAM_allocated += id_average[id].allocated;
+                ip_average[ip].free /= ip_times[ip];
+                ip_average[ip].filter_free /= ip_times[ip];
+                ip_average[ip].allocated_not_mapped /= ip_times[ip];
+                ip_average[ip].mapped /= ip_times[ip];
+                total_RAM_free += ip_average[ip].free;
+                total_RAM_filter_free += ip_average[ip].filter_free;
+                total_RAM_mapped += ip_average[ip].mapped;
+                total_RAM_allocated += ip_average[ip].allocated;
             }
             avg_pagein_speed /= msgs.size();
             avg_pageout_speed /= msgs.size();
@@ -171,9 +182,9 @@ static void process_data()
         // put the data into mysql
         char str[200];
         sprintf(str,
-                "INSERT INTO general_info (pagein_speed, pageout_speed, pagein_latency, pageout_latency, time, device_num, RAM_used, RAM_unused, RAM_allocated) VALUES (%d, %d, %d, %d, NOW(), %d, %d, %d, %d)",
+                "INSERT INTO general_info (pagein_speed, pageout_speed, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_used, RAM_unused, RAM_allocated) VALUES (%d, %d, %d, %d, NOW(), %d, %d, %d, %d)",
                 avg_pagein_speed, avg_pageout_speed, avg_pagein_latency, avg_pageout_latency,
-                ids.size(), total_RAM_used, total_RAM_unused, total_RAM_allocated);
+                ips.size(), total_bd, total_daemon, total_RAM_used, total_RAM_unused, total_RAM_allocated);
         //cout << str << endl;
 
         put_data_into_mysql(str);
@@ -182,20 +193,20 @@ static void process_data()
     }
 }
 
-static void process_request(request_msg msg)
+static voip process_request(request_msg msg)
 {
-    //cout << "id is " << msg.id << endl;
+    //cout << "ip is " << msg.ip << endl;
     //cout << "time is " << msg.time << " " << ctime(&msg.time) << endl;
     infos.add_info(msg);
     char str[200];
     sprintf(str,
-            "INSERT INTO block_device (dev_id, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES (%d, %d, %d, %d, %d, NOW())",
-            msg.id, msg.pagein_speed, msg.pageout_speed, msg.pagein_latency, msg.pageout_latency);
+            "INSERT INTO block_device (dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES (%d, %d, %d, %d, %d, NOW())",
+            msg.ip, msg.pagein_speed, msg.pageout_speed, msg.pagein_latency, msg.pageout_latency);
     cout << str << endl;
     put_data_into_mysql(str);
 }
 
-static void deal_request(int msgsock)
+static voip deal_request(int msgsock)
 {
     //receive message
     request_msg msg;
@@ -206,7 +217,7 @@ static void deal_request(int msgsock)
 }
 
 //listen to the clients' requests
-static void server_listen(int sock)
+static voip server_listen(int sock)
 {
     while (true)
     {
@@ -228,7 +239,7 @@ static void server_listen(int sock)
     }
 }
 
-void connect_to_mysql()
+voip connect_to_mysql()
 {
     conn = mysql_init(NULL);
     if (conn == NULL)

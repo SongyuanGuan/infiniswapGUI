@@ -8,18 +8,16 @@
 #include <thread>
 #include <cstdlib>
 #include <unistd.h>
+#include <fstream>
 #include "grafana_socket.h"
 
 using namespace std;
 
-int id;
+const string ip = "192.168.0.57";
+int last_version = -1;
 
-int main(int argc, char** argv)
-{
-    id = atoi(argv[1]);
-    while (true)
-    {
-        int sock;
+void send_to_server(request_msg & msg){
+    int sock;
         struct sockaddr_in server;
         char buf[1024];
         /* Create socket. */
@@ -39,18 +37,44 @@ int main(int argc, char** argv)
             exit(1);
         }
 
-        request_msg msg;
-        msg.id = id;
+        msg.ip = ip;
         msg.pagein_speed = rand() % 100 + 50;
         msg.pageout_speed = rand() % 100 + 100;
         msg.pagein_latency = rand() % 20 + 10;
         msg.pageout_latency = rand() % 20 + 10;
         msg.time = time(0);
-        msg.ram.used = rand()%10 + 16;
-        msg.ram.unused = rand() % 10 + 16;
-        msg.ram.allocated = total_ram - msg.ram.used - msg.ram.unused;
         send(sock, &msg, sizeof(request_msg), 0);
         close(sock);
+}
+
+void read_bd(request_msg & msg){
+
+}
+
+void read_daemon(request_msg & msg){
+    ifstream ifile;
+    ifile.open("/tmp/daemon");
+    ifile >> msg.deamon_on;
+    if (msg.deamon_on){
+        int version;
+        ifile >> version;
+        if (version != last_version){
+            last_version = version;
+            ifile >> msg.ram.free >> msg.ram.filter_free >> msg.ram.allocated_not_mapped >> msg.ram.mapped;
+        }
+    }
+    ifile.close();
+}
+
+int main(int argc, char** argv)
+{
+    while (true)
+    {
+        request_msg msg;
+        memset(&msg, 0, sizeof(msg));
+        read_bd(msg);
+        read_daemon(msg);
+        send_to_server(msg);
         sleep(send_interval);
     }
 }
