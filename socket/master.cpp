@@ -145,7 +145,7 @@ static void process_data()
                     }
                     if (info.daemon_on)
                     {
-                        total_daemon++
+                        total_daemon++;
                     }
                 }
                 else
