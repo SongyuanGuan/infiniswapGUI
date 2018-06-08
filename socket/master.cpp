@@ -33,12 +33,12 @@ class all_info
 {
   public:
     priority_queue<request_msg, vector<request_msg>, compare_by_time> infos;
-    voip add_info(request_msg msg)
+    void add_info(request_msg msg)
     {
         infos.push(msg);
     }
     //select infos from time to time+interval
-    voip select_infos(time_t time, vector<request_msg> *msgs)
+    void select_infos(time_t time, vector<request_msg> *msgs)
     {
         while (true)
         {
@@ -97,7 +97,7 @@ static int server_init()
     return sock;
 }
 
-static voip put_data_into_mysql(char *str)
+static void put_data_into_mysql(char *str)
 {
     int res = mysql_query(conn, str);
 
@@ -112,7 +112,7 @@ static voip put_data_into_mysql(char *str)
     }
 }
 
-static voip process_data()
+static void process_data()
 {
     while (true)
     {
@@ -193,7 +193,7 @@ static voip process_data()
     }
 }
 
-static voip process_request(request_msg msg)
+static void process_request(request_msg msg)
 {
     //cout << "ip is " << msg.ip << endl;
     //cout << "time is " << msg.time << " " << ctime(&msg.time) << endl;
@@ -206,7 +206,7 @@ static voip process_request(request_msg msg)
     put_data_into_mysql(str);
 }
 
-static voip deal_request(int msgsock)
+static void deal_request(int msgsock)
 {
     //receive message
     request_msg msg;
@@ -217,7 +217,7 @@ static voip deal_request(int msgsock)
 }
 
 //listen to the clients' requests
-static voip server_listen(int sock)
+static void server_listen(int sock)
 {
     while (true)
     {
@@ -239,7 +239,7 @@ static voip server_listen(int sock)
     }
 }
 
-voip connect_to_mysql()
+void connect_to_mysql()
 {
     conn = mysql_init(NULL);
     if (conn == NULL)
