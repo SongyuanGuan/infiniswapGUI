@@ -203,10 +203,10 @@ static void process_request(request_msg msg)
     infos.add_info(msg);
     char str[200];
     sprintf(str,
-            "INSERT INTO block_device (dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES (%s, %d, %d, %d, %d, NOW())",
+            "INSERT INTO block_device (dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
             msg.ip, msg.pagein_speed, msg.pageout_speed, msg.pagein_latency, msg.pageout_latency);
     cout << str << endl;
-    //put_data_into_mysql(str);
+    put_data_into_mysql(str);
 }
 
 static void deal_request(int msgsock)
