@@ -38,7 +38,7 @@ void send_to_server(request_msg & msg){
             exit(1);
         }
 
-        msg.ip = ip;
+        strcpy(msg.ip, ip.c_str());
         msg.pagein_speed = rand() % 100 + 50;
         msg.pageout_speed = rand() % 100 + 100;
         msg.pagein_latency = rand() % 20 + 10;

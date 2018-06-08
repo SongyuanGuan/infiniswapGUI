@@ -136,19 +136,20 @@ static void process_data()
                 avg_pageout_speed += info.pageout_speed;
                 avg_pagein_latency += info.pagein_latency;
                 avg_pageout_latency += info.pageout_latency;
-                if (ips.find(info.ip) == ips.end())
+                string info_ip = info.ip;
+		if (ips.find(info_ip) == ips.end())
                 {
-                    ips.insert(info.ip);
-                    ip_times[info.ip] = 1;
-                    ip_average[info.ip] = info.ram;
+                    ips.insert(info_ip);
+                    ip_times[info_ip] = 1;
+                    ip_average[info_ip] = info.ram;
                 }
                 else
                 {
-                    ip_times[info.ip]++;
-                    ip_average[info.ip].mapped += info.ram.mapped;
-                    ip_average[info.ip].free += info.ram.free;
-                    ip_average[info.ip].filter_free += info.ram.filter_free;
-                    ip_average[info.ip].allocated_not_mapped += info.ram.allocated_not_mapped;
+                    ip_times[info_ip]++;
+                    ip_average[info_ip].mapped += info.ram.mapped;
+                    ip_average[info_ip].free += info.ram.free;
+                    ip_average[info_ip].filter_free += info.ram.filter_free;
+                    ip_average[info_ip].allocated_not_mapped += info.ram.allocated_not_mapped;
                 }
                 if (info.bd_on){
                     total_bd++;
@@ -195,15 +196,15 @@ static void process_data()
 
 static void process_request(request_msg msg)
 {
-    //cout << "ip is " << msg.ip << endl;
+    cout << "ip is " << msg.ip << endl;
     //cout << "time is " << msg.time << " " << ctime(&msg.time) << endl;
     infos.add_info(msg);
     char str[200];
     sprintf(str,
             "INSERT INTO block_device (dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES (%s, %d, %d, %d, %d, NOW())",
-            msg.ip.c_str(), msg.pagein_speed, msg.pageout_speed, msg.pagein_latency, msg.pageout_latency);
+            msg.ip, msg.pagein_speed, msg.pageout_speed, msg.pagein_latency, msg.pageout_latency);
     cout << str << endl;
-    put_data_into_mysql(str);
+    //put_data_into_mysql(str);
 }
 
 static void deal_request(int msgsock)
