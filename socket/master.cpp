@@ -109,6 +109,7 @@ static void put_data_into_mysql(char *str)
     {
         fprintf(stderr, "Insert error %d: %s\n", mysql_errno(conn),
                 mysql_error(conn));
+        exit(1);
     }
 }
 

@@ -3,6 +3,6 @@ while:;
 do
 time="`date +%Y-%m-%d,%H:%M:%s`"
 echo $time >> /tmp/time_restart
-./master
+./worker
 sleep 1s
 done
