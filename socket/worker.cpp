@@ -58,10 +58,9 @@ void read_bd(request_msg &msg)
     ifile.close();
     if (msg.bd_on)
     {
-        int a;
         ifstream ifile;
         ifile.open("/tmp/bd_info");
-        ifile >> msg.IO.pagein_speed >> msg.IO.pageout_speed >> a >> a >> msg.IO.pagein_latency >> msg.IO.pageout_latency;  
+        ifile >> msg.IO.pagein_speed >> msg.IO.pageout_speed >> msg.IO.total_IO >> msg.IO.remote_IO >> msg.IO.pagein_latency >> msg.IO.pageout_latency;  
         ifile.close(); 
     }
 }

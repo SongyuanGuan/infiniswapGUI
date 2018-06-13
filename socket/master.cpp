@@ -179,8 +179,8 @@ static void process_data()
         // put the data into mysql
         char str[200];
         sprintf(str,
-                "INSERT INTO general_info (pagein_speed, pageout_speed, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
-                avg_IO.pagein_speed, avg_IO.pageout_speed, avg_IO.pagein_latency, avg_IO.pageout_latency,
+                "INSERT INTO general_info (total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES ($d, %d, %d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
+                avg_IO.total_IO, avg_IO.remote_IO, avg_IO.pagein_speed, avg_IO.pageout_speed, avg_IO.pagein_latency, avg_IO.pageout_latency,
                 (int) ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
         cout << str << endl;
 
@@ -199,8 +199,8 @@ static void process_request(request_msg msg)
     {
         char str[200];
         sprintf(str,
-                "INSERT INTO block_device (dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
-                msg.ip, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency);
+                "INSERT INTO block_device (dev_ip, total_IO, remote_IO, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, %d, %d, NOW())",
+                msg.ip, msg.IO.total_IO, msg.IO.remote_IO, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency);
         cout << str << endl;
         put_data_into_mysql(str);
     }
