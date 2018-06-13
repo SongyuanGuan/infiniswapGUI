@@ -181,7 +181,7 @@ static void process_data()
         sprintf(str,
                 "INSERT INTO general_info (pagein_speed, pageout_speed, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
                 avg_IO.pagein_speed, avg_IO.pageout_speed, avg_IO.pagein_latency, avg_IO.pageout_latency,
-                ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
+                (int) ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
         cout << str << endl;
 
         put_data_into_mysql(str);
