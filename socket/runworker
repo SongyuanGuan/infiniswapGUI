@@ -1,7 +1,7 @@
 #!/bin/bash
-while:;
+while :
 do
-time="`date +%Y-%m-%d,%H:%M:%s`"
+time="`date +%Y-%m-%d,%H:%M:%S`"
 echo $time >> /tmp/time_restart
 ./worker
 sleep 1s
