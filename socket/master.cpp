@@ -124,7 +124,7 @@ static void process_data()
         infos.select_infos(t, &msgs);
         ram_t total_ram;
         memset(&total_ram, 0, sizeof(ram_t));
-        IO_para avg_IO;
+        IO_para total_IO;
         memset(&avg_IO, 0, sizeof(IO_para));
         int total_bd = 0, total_daemon = 0;
         unordered_set<string> ips;
@@ -163,11 +163,7 @@ static void process_data()
                 ip_average[ip].ram = ip_average[ip].ram / ip_times[ip];
                 ip_average[ip].IO = ip_average[ip].IO / ip_times[ip];
                 total_ram = total_ram + ip_average[ip].ram;
-                avg_IO = avg_IO + ip_average[ip].IO;
-            }
-            if (total_bd > 1)
-            {
-                avg_IO = avg_IO / total_bd;
+                total_IO = total_IO + ip_average[ip].IO;
             }
         }
         tm *my_tm = localtime(&t);
@@ -180,7 +176,7 @@ static void process_data()
         char str[200];
         sprintf(str,
                 "INSERT INTO general_info (total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
-                avg_IO.total_IO, avg_IO.remote_IO, avg_IO.pagein_speed, avg_IO.pageout_speed, avg_IO.pagein_latency, avg_IO.pageout_latency,
+                total_IO.total_IO, total_IO.remote_IO, total_IO.pagein_speed / ips.size(), avg_IO.pageout_speed / ips.size(), avg_IO.pagein_latency, avg_IO.pageout_latency,
                 (int) ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
         cout << str << endl;
 
@@ -199,7 +195,7 @@ static void process_request(request_msg msg)
     {
         char str[200];
         sprintf(str,
-                "INSERT INTO block_device (dev_ip, total_IO, remote_IO, pagein_speed, pageout_speed, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, %d, %d, NOW())",
+                "INSERT INTO block_device (dev_ip, total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, %d, %d, NOW())",
                 msg.ip, msg.IO.total_IO, msg.IO.remote_IO, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency);
         cout << str << endl;
         put_data_into_mysql(str);

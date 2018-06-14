@@ -55,10 +55,13 @@ IO_para operator+(const IO_para & a, const IO_para & b){
 }
 
 IO_para operator/(const IO_para & a,int  b){
-    // only divide latency
     IO_para result = a;
     result.pageout_latency = a.pageout_latency / b;
     result.pagein_latency = a.pagein_latency / b;
+    result.total_IO = a.total_IO / b;
+    result.remote_IO = a.remote_IO / b;
+    result.pagein_speed = a.pagein_speed / b;
+    result.pageout_speed = a.pageout_speed / b;
     return result;
 }
 
