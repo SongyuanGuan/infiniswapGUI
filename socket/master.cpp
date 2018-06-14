@@ -125,13 +125,13 @@ static void process_data()
         ram_t total_ram;
         memset(&total_ram, 0, sizeof(ram_t));
         IO_para total_IO;
-        memset(&avg_IO, 0, sizeof(IO_para));
+        memset(&total_IO, 0, sizeof(IO_para));
         int total_bd = 0, total_daemon = 0;
         unordered_set<string> ips;
         unordered_map<string, int> ip_times;
         unordered_map<string, request_msg> ip_average;
         if (!msgs.empty())
-        {
+        { 
             for (request_msg info : msgs)
             {
                 string info_ip = info.ip;
@@ -176,7 +176,7 @@ static void process_data()
         char str[200];
         sprintf(str,
                 "INSERT INTO general_info (total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
-                total_IO.total_IO, total_IO.remote_IO, total_IO.pagein_speed / ips.size(), avg_IO.pageout_speed / ips.size(), avg_IO.pagein_latency, avg_IO.pageout_latency,
+                total_IO.total_IO, total_IO.remote_IO, total_IO.pagein_speed / ips.size(), total_IO.pageout_speed / ips.size(), total_IO.pagein_latency, total_IO.pageout_latency,
                 (int) ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
         cout << str << endl;
 
