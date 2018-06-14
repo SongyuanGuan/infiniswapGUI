@@ -165,9 +165,9 @@ static void process_data()
                 total_ram = total_ram + ip_average[ip].ram;
                 total_IO = total_IO + ip_average[ip].IO;
             }
-            if (ips.size() > 1){
-                total_IO.pagein_latency /= ips.size();
-                total_IO.pageout_latency /= ips.size();
+            if (total_bd > 1){
+                total_IO.pagein_latency /= total_bd;
+                total_IO.pageout_latency /= total_bd;
             }
         }
         tm *my_tm = localtime(&t);
