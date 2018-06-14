@@ -176,7 +176,7 @@ static void process_data()
         char str[200];
         sprintf(str,
                 "INSERT INTO general_info (total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
-                total_IO.total_IO, total_IO.remote_IO, total_IO.pagein_speed / ips.size(), total_IO.pageout_speed / ips.size(), total_IO.pagein_latency, total_IO.pageout_latency,
+                total_IO.total_IO, total_IO.remote_IO, total_IO.pagein_speed / (int) ips.size(), total_IO.pageout_speed / (int) ips.size(), total_IO.pagein_latency, total_IO.pageout_latency,
                 (int) ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
         cout << str << endl;
 
