@@ -177,7 +177,7 @@ static void process_data()
 
         cout << msgs.size() << endl;
         // put the data into mysql
-        char str[200];
+        char str[500];
         sprintf(str,
                 "INSERT INTO general_info (total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
                 total_IO.total_IO, total_IO.remote_IO, total_IO.pagein_speed, total_IO.pageout_speed, total_IO.pagein_latency, total_IO.pageout_latency,
@@ -197,7 +197,7 @@ static void process_request(request_msg msg)
     infos.add_info(msg);
     if (msg.bd_on)
     {
-        char str[200];
+        char str[500];
         sprintf(str,
                 "INSERT INTO block_device (dev_ip, total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, %d, %d, NOW())",
                 msg.ip, msg.IO.total_IO, msg.IO.remote_IO, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency);
@@ -205,7 +205,7 @@ static void process_request(request_msg msg)
         put_data_into_mysql(str);
     }
     if (msg.daemon_on){
-        char str[200];
+        char str[500];
         sprintf(str,
                 "INSERT INTO daemon (dev_ip, RAM_free, RAM_filter_free, RAM_mapped, RAM_allocated, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
                 msg.ip, msg.ram.free, msg.ram.filter_free, msg.ram.mapped, msg.ram.allocated_not_mapped);
