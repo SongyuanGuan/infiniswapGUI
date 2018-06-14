@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:86",
+        "$$hashKey": "object:12156",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1528484236690,
+  "iteration": 1528952573134,
   "links": [
     {
       "icon": "external link",
@@ -65,14 +65,14 @@
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_speed as value,\n  \"page in speed\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_throughput as value,\n  \"page in throughput\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
           "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page In Speed",
+      "title": "Page In Throughput (per second)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -148,14 +148,14 @@
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_speed as value,\n  \"page out speed\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_throughput as value,\n  \"page out throughput\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
           "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page Out Speed",
+      "title": "Page Out Throughput (per second)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -231,7 +231,6 @@
       "steppedLine": false,
       "targets": [
         {
-          "$$hashKey": "object:152",
           "alias": "",
           "format": "time_series",
           "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_latency as value,\n  \"page in latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
@@ -241,7 +240,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page In Latency",
+      "title": "Page In Latency (nanosecond)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -326,7 +325,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page Out Latency",
+      "title": "Page Out Latency (nanosecond)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -364,12 +363,66 @@
       }
     },
     {
+      "columns": [],
+      "datasource": "Infiniswap",
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      },
+      "id": 9,
+      "links": [],
+      "pageSize": null,
+      "scroll": true,
+      "showHeader": true,
+      "sort": {
+        "col": 3,
+        "desc": true
+      },
+      "styles": [
+        {
+          "alias": "Time",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "pattern": "Time",
+          "type": "date"
+        },
+        {
+          "alias": "",
+          "colorMode": null,
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "decimals": 2,
+          "pattern": "/.*/",
+          "thresholds": [],
+          "type": "number",
+          "unit": "short"
+        }
+      ],
+      "targets": [
+        {
+          "$$hashKey": "object:12298",
+          "alias": "",
+          "format": "table",
+          "rawSql": "SELECT FROM_UNIXTIME(UNIX_TIMESTAMP(time)), total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency from block_device;",
+          "refId": "A"
+        }
+      ],
+      "title": "Data Table",
+      "transform": "table",
+      "type": "table"
+    },
+    {
       "content": "<a href=\"http://127.0.0.1:3000/d/000000003/infiniswap?refresh=10s&orgId=1\"> Back To Main Page </a>",
       "gridPos": {
         "h": 2,
         "w": 3,
         "x": 0,
-        "y": 18
+        "y": 27
       },
       "id": 7,
       "links": [],
@@ -441,5 +494,5 @@
   "timezone": "",
   "title": "block_device",
   "uid": "DxYJ2HSiz",
-  "version": 6
+  "version": 10
 }

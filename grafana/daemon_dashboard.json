@@ -2,7 +2,7 @@
     "annotations": {
       "list": [
         {
-          "$$hashKey": "object:2571",
+          "$$hashKey": "object:12755",
           "builtIn": 1,
           "datasource": "-- Grafana --",
           "enable": true,
@@ -17,7 +17,7 @@
     "gnetId": null,
     "graphTooltip": 0,
     "id": 4,
-    "iteration": 1528484105246,
+    "iteration": 1528952950243,
     "links": [
       {
         "asDropdown": false,
@@ -144,5 +144,5 @@
     "timezone": "",
     "title": "daemon",
     "uid": "ztudW-Iiz",
-    "version": 2
+    "version": 3
   }

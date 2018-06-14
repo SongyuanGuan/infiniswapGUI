@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:2236",
+        "$$hashKey": "object:12828",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -45,7 +45,7 @@
       },
       "gridPos": {
         "h": 8,
-        "w": 3,
+        "w": 4,
         "x": 0,
         "y": 0
       },
@@ -133,8 +133,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 3,
+        "w": 4,
+        "x": 4,
         "y": 0
       },
       "id": 9,
@@ -203,8 +203,8 @@
       "fill": 1,
       "gridPos": {
         "h": 8,
-        "w": 10,
-        "x": 6,
+        "w": 8,
+        "x": 8,
         "y": 0
       },
       "id": 3,
@@ -233,14 +233,14 @@
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_speed as value,\n  \"page in speed\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_throughput as value,\n  \"page in throughput\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n",
           "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page In Speed",
+      "title": "Page In Throughput (per second)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -316,14 +316,14 @@
         {
           "alias": "",
           "format": "time_series",
-          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_speed as value,\n  \"page out speed\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_throughput as value,\n  \"page out throughput\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n",
           "refId": "A"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page Out Speed",
+      "title": "Page Out Throughput (per second)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -380,8 +380,8 @@
       },
       "gridPos": {
         "h": 4,
-        "w": 3,
-        "x": 3,
+        "w": 4,
+        "x": 4,
         "y": 4
       },
       "id": 10,
@@ -454,7 +454,7 @@
       "format": "short",
       "gridPos": {
         "h": 8,
-        "w": 6,
+        "w": 4,
         "x": 0,
         "y": 8
       },
@@ -492,7 +492,56 @@
           "refId": "C"
         }
       ],
-      "title": "Panel Title",
+      "title": "Memory Usage",
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    },
+    {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": 0
+      },
+      "datasource": "Infiniswap",
+      "fontSize": "80%",
+      "format": "short",
+      "gridPos": {
+        "h": 8,
+        "w": 4,
+        "x": 4,
+        "y": 8
+      },
+      "id": 12,
+      "interval": null,
+      "legend": {
+        "show": true,
+        "sort": "current",
+        "sortDesc": false,
+        "values": true
+      },
+      "legendType": "Under graph",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "pieType": "pie",
+      "strokeWidth": 1,
+      "targets": [
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  (total_IO-remote_IO) as value,\n  \"local_IO\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n\n",
+          "refId": "A"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  remote_IO as value,\n  \"remote_IO\" as metric\nFROM general_info\nWHERE $__timeFilter(time)\nORDER BY time ASC\n",
+          "refId": "B"
+        }
+      ],
+      "title": "IO Partition",
       "type": "grafana-piechart-panel",
       "valueName": "current"
     },
@@ -507,8 +556,8 @@
       "fill": 1,
       "gridPos": {
         "h": 8,
-        "w": 10,
-        "x": 6,
+        "w": 8,
+        "x": 8,
         "y": 8
       },
       "id": 5,
@@ -544,7 +593,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page In Latency",
+      "title": "Page In Latency (nanosecond)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -629,7 +678,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page Out Latency",
+      "title": "Page Out Latency (nanosecond)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -711,7 +760,7 @@
         {
           "alias": "",
           "format": "table",
-          "rawSql": "SELECT dev_ip, pagein_speed, pageout_speed, pagein_latency, pageout_latency FROM block_device GROUP BY dev_ip ",
+          "rawSql": "SELECT dev_ip, total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency FROM block_device WHERE $__timeFilter(time) GROUP BY dev_ip",
           "refId": "A"
         }
       ],
@@ -765,7 +814,7 @@
         {
           "alias": "",
           "format": "table",
-          "rawSql": "SELECT dev_ip, RAM_free, RAM_filter_free, RAM_mapped, RAM_allocated FROM daemon GROUP BY dev_ip",
+          "rawSql": "SELECT dev_ip, RAM_free, RAM_filter_free, RAM_mapped, RAM_allocated FROM daemon WHERE $__timeFilter(time) GROUP BY dev_ip",
           "refId": "A"
         }
       ],
@@ -828,5 +877,5 @@
   "timezone": "",
   "title": "General Info",
   "uid": "000000003",
-  "version": 7
+  "version": 11
 }
