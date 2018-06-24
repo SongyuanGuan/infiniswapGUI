@@ -12,6 +12,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <cstring>
+#include <mutex>
 #include "grafana_socket.h"
 #include "mysql.h"
 
@@ -19,6 +20,11 @@ using namespace std;
 
 const int device_num = 5; // (max) total number of divices
 const int delay_time = 5; // process data before delay_time
+const string db_tables[5] = {"general_info", "block_device", "daemon", "daemon_mem", "daemon_mapping"};
+const int DELETE_INTERVAL = 300;
+
+mutex db_lock;
+mutex info_lock;
 
 class compare_by_time
 {
@@ -35,11 +41,14 @@ class all_info
     priority_queue<request_msg, vector<request_msg>, compare_by_time> infos;
     void add_info(request_msg msg)
     {
+        info_lock.lock();
         infos.push(msg);
+        info_lock.unlock();
     }
     //select infos from time to time+interval
     void select_infos(time_t time, vector<request_msg> *msgs)
     {
+        info_lock.lock();
         while (true)
         {
             if (infos.empty())
@@ -60,6 +69,7 @@ class all_info
                 break;
             }
         }
+        info_lock.unlock();
     }
 };
 
@@ -99,7 +109,9 @@ static int server_init()
 
 static void put_data_into_mysql(char *str)
 {
+    db_lock.lock();
     int res = mysql_query(conn, str);
+    db_lock.unlock();
 
     if (!res)
     {
@@ -191,7 +203,7 @@ static void process_data()
     }
 }
 
-static void process_request(const request_msg & msg)
+static void process_request(const request_msg &msg)
 {
     cout << "ip is " << msg.ip << endl;
     //cout << "time is " << msg.time << " " << ctime(&msg.time) << endl;
@@ -229,7 +241,7 @@ static void process_request(const request_msg & msg)
                 char str2[200];
                 sprintf(str2,
                         "INSERT INTO daemon_mapping (dev_ip, remote_ip, local_chunk, remote_chunk, time) VALUES ('%s', '%s', %d, %d, NOW())",
-                        msg.ip, msg.mapping.map_infos[i].remote_ip, i+1, msg.mapping.map_infos[i].remote_chunk_num + 1);
+                        msg.ip, msg.mapping.map_infos[i].remote_ip, i + 1, msg.mapping.map_infos[i].remote_chunk_num + 1);
                 cout << str2 << endl;
                 put_data_into_mysql(str2);
             }
@@ -237,7 +249,8 @@ static void process_request(const request_msg & msg)
     }
 }
 
-static bool check_request(const request_msg & msg){
+static bool check_request(const request_msg &msg)
+{
     //check ip
     if (msg.ip[0] == '1' && msg.ip[1] == '9' && msg.ip[2] == '2')
         return true;
@@ -249,7 +262,8 @@ static void deal_request(int msgsock)
     //receive message
     request_msg msg;
     recv(msgsock, &msg, sizeof(msg), MSG_WAITALL);
-    if (check_request(msg)){
+    if (check_request(msg))
+    {
         process_request(msg);
     }
     close(msgsock);
@@ -271,14 +285,13 @@ static void server_listen(int sock)
         }
         else
         {
-            //thread tt(deal_request, msgsock);
-            //tt.detach();
-            deal_request(msgsock);
+            thread tt(deal_request, msgsock);
+            tt.detach();
         }
     }
 }
 
-void connect_to_mysql()
+static void connect_to_mysql()
 {
     conn = mysql_init(NULL);
     if (conn == NULL)
@@ -301,12 +314,31 @@ void connect_to_mysql()
     }
 }
 
+static void clear_db()
+{
+    while (true)
+    {
+        for (string table : tables)
+        {
+            char str2[200];
+            sprintf(str2,
+                    "DELETE FROM %s WHERE time < (NOW() - interval 12 hour)",
+                    table.c_str());
+            cout << str2 << endl;
+            put_data_into_mysql(str2);
+        }
+        sleep(DELETE_INTERVAL);
+    }
+}
+
 int main()
 {
     connect_to_mysql();
     int sock = server_init();
     thread dataprocessing_t(process_data);
     dataprocessing_t.detach();
+    thread dbclear_t(clear_db);
+    dbclear_t.detach();
     server_listen(sock);
 
     return 0;
