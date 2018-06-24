@@ -69,12 +69,12 @@ IO_para operator/(const IO_para & a,int  b){
 struct map_info{
     char remote_ip[16];
     int remote_chunk_num;
-}
+};
 
 struct mapping_relation{
     char mem_status[MAX_FREE_MEM_GB + 1]; // 0 for free, 1 for allocated but not mapped, 2 for mapped, 3 for used by local program
     map_info map_infos[MAX_FREE_MEM_GB];
-}
+};
 
 
 struct request_msg{

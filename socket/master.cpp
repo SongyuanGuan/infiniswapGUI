@@ -221,7 +221,7 @@ static void process_request(request_msg msg)
         cout << str2 << endl;
         put_data_into_mysql(str2);
 
-        for (int i = 0; i < const int MAX_FREE_MEM_GB = 32; i++)
+        for (int i = 0; i < MAX_FREE_MEM_GB; i++)
         {
             // check if the chunk has been mapped
             if (msg.mapping.mem_status[i] == 2)
