@@ -191,7 +191,7 @@ static void process_data()
     }
 }
 
-static void process_request(request_msg msg)
+static void process_request(const request_msg & msg)
 {
     cout << "ip is " << msg.ip << endl;
     //cout << "time is " << msg.time << " " << ctime(&msg.time) << endl;
@@ -237,12 +237,21 @@ static void process_request(request_msg msg)
     }
 }
 
+static bool check_request(const request_msg & msg){
+    //check ip
+    if (msg.ip[0] == '1' && msg.ip[1] == '9' && msg.ip[2] == '2')
+        return true;
+    return false;
+}
+
 static void deal_request(int msgsock)
 {
     //receive message
     request_msg msg;
     recv(msgsock, &msg, sizeof(msg), MSG_WAITALL);
-    process_request(msg);
+    if (check_request(msg)){
+        process_request(msg);
+    }
     close(msgsock);
 }
 

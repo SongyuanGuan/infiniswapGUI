@@ -13,7 +13,7 @@ CREATE TABLE block_device(  id INT NOT NULL AUTO_INCREMENT, dev_ip VARCHAR(16) N
 CREATE TABLE daemon(  id INT NOT NULL AUTO_INCREMENT, dev_ip VARCHAR(16) NOT NULL, RAM_free INT NOT NULL, RAM_filter_free INT NOT NULL, RAM_mapped INT NOT NULL, RAM_allocated INT NOT NULL, time timestamp, PRIMARY KEY ( id ) );
 
 * daemon_mem table <br>
-CREATE TABLE daemon_mem( id INT NOT NULL AUTO_INCREMENT, dev_ip VARCHAR(16) NOT NULL, mem_status VARCHAR(16) NOT NULL, time TIMESTAMP NOT NULL, PRIMARY KEY ( id ) );
+CREATE TABLE daemon_mem( id INT NOT NULL AUTO_INCREMENT, dev_ip VARCHAR(16) NOT NULL, mem_status VARCHAR(33) NOT NULL, time TIMESTAMP NOT NULL, PRIMARY KEY ( id ) );
 
 * daemon_mapping table <br>
 CREATE TABLE daemon_mapping( id INT NOT NULL AUTO_INCREMENT, dev_ip VARCHAR(16) NOT NULL, remote_ip VARCHAR(16) NOT NULL, local_chunk INT NOT NULL, remote_chunk INT NOT NULL, time TIMESTAMP NOT NULL, PRIMARY KEY ( id ) );
