@@ -7,7 +7,8 @@
 const int hostport = 8000;
 const int send_interval = 2; // the interval (seconds) a client sending message to server
 const int process_interval = 10; // the interval (seconds) server process data
-const int TOTALRAM= 64; // 64GB
+const int TOTALRAM = 64; // 64GB
+const int MAX_FREE_MEM_GB = 32;
 
 struct ram_t{
     int mapped;
@@ -65,6 +66,17 @@ IO_para operator/(const IO_para & a,int  b){
     return result;
 }
 
+struct map_info{
+    char remote_ip[16];
+    int remote_chunk_num;
+}
+
+struct mapping_relation{
+    char mem_status[MAX_FREE_MEM_GB + 1]; // 0 for free, 1 for allocated but not mapped, 2 for mapped, 3 for used by local program
+    map_info map_infos[MAX_FREE_MEM_GB];
+}
+
+
 struct request_msg{
     char ip[16];
     bool bd_on;
@@ -73,6 +85,7 @@ struct request_msg{
     time_t time;
     ram_t ram;
     IO_para IO;
+    mapping_relation mapping;
 };
 
 #endif

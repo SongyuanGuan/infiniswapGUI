@@ -131,7 +131,7 @@ static void process_data()
         unordered_map<string, int> ip_times;
         unordered_map<string, request_msg> ip_average;
         if (!msgs.empty())
-        { 
+        {
             for (request_msg info : msgs)
             {
                 string info_ip = info.ip;
@@ -165,7 +165,8 @@ static void process_data()
                 total_ram = total_ram + ip_average[ip].ram;
                 total_IO = total_IO + ip_average[ip].IO;
             }
-            if (total_bd > 1){
+            if (total_bd > 1)
+            {
                 total_IO.pagein_latency /= total_bd;
                 total_IO.pageout_latency /= total_bd;
             }
@@ -181,7 +182,7 @@ static void process_data()
         sprintf(str,
                 "INSERT INTO general_info (total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time, device_num, bd_num, daemon_num, RAM_free, RAM_filter_free, RAM_allocated, RAM_mapped) VALUES (%d, %d, %d, %d, %d, %d, NOW(), %d, %d, %d, %d, %d, %d, %d)",
                 total_IO.total_IO, total_IO.remote_IO, total_IO.pagein_speed, total_IO.pageout_speed, total_IO.pagein_latency, total_IO.pageout_latency,
-                (int) ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
+                (int)ips.size(), total_bd, total_daemon, total_ram.free, total_ram.filter_free, total_ram.allocated_not_mapped, total_ram.mapped);
         cout << str << endl;
 
         put_data_into_mysql(str);
@@ -204,13 +205,35 @@ static void process_request(request_msg msg)
         cout << str << endl;
         put_data_into_mysql(str);
     }
-    if (msg.daemon_on){
-        char str[500];
-        sprintf(str,
+    if (msg.daemon_on)
+    {
+        char str1[500];
+        sprintf(str1,
                 "INSERT INTO daemon (dev_ip, RAM_free, RAM_filter_free, RAM_mapped, RAM_allocated, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
                 msg.ip, msg.ram.free, msg.ram.filter_free, msg.ram.mapped, msg.ram.allocated_not_mapped);
-        cout << str << endl;
-        put_data_into_mysql(str); 
+        cout << str1 << endl;
+        put_data_into_mysql(str1);
+
+        char str2[200];
+        sprintf(str2,
+                "INSERT INTO daemon_mem (dev_ip, mem_status, time) VALUES ('%s', '%s', NOW())",
+                msg.ip, msg.mapping.mem_status);
+        cout << str2 << endl;
+        put_data_into_mysql(str2);
+
+        for (int i = 0; i < const int MAX_FREE_MEM_GB = 32; i++)
+        {
+            // check if the chunk has been mapped
+            if (msg.mapping.mem_status[i] == 2)
+            {
+                char str2[200];
+                sprintf(str2,
+                        "INSERT INTO daemon_mapping (dev_ip, remote_ip, local_chunk, remote_chunk, time) VALUES ('%s', '%s', %d, %d, NOW())",
+                        msg.ip, msg.mapping.map_infos[i].remote_ip, i+1, msg.mapping.map_infos[i].remote_chunk_num + 1);
+                cout << str2 << endl;
+                put_data_into_mysql(str2);
+            }
+        }
     }
 }
 

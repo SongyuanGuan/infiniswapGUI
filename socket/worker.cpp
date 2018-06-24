@@ -79,7 +79,10 @@ void read_daemon(request_msg &msg)
         {
             cout << version << endl;
             last_version = version;
-            ifile >> msg.ram.free >> msg.ram.filter_free >> msg.ram.allocated_not_mapped >> msg.ram.mapped;
+            ifile >> msg.ram.free >> msg.ram.filter_free >> msg.ram.allocated_not_mapped >> msg.ram.mapped >> msg.mapping.mem_status;
+            for (int i = 0; i < msg.ram.mapped; i++){
+                ifile >> msg.mapping.map_infos[i].remote_ip >> msg.mapping.map_infos[i].remote_chunk_num;
+            }
         }
         else
         {
