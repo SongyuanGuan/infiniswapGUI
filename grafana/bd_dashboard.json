@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:12156",
+        "$$hashKey": "object:326",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1528952573134,
+  "iteration": 1529816997811,
   "links": [
     {
       "icon": "external link",
@@ -378,7 +378,7 @@
       "scroll": true,
       "showHeader": true,
       "sort": {
-        "col": 3,
+        "col": 0,
         "desc": true
       },
       "styles": [
@@ -405,14 +405,13 @@
       ],
       "targets": [
         {
-          "$$hashKey": "object:12298",
           "alias": "",
           "format": "table",
           "rawSql": "SELECT FROM_UNIXTIME(UNIX_TIMESTAMP(time)), total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency from block_device;",
           "refId": "A"
         }
       ],
-      "title": "Data Table",
+      "title": "",
       "transform": "table",
       "type": "table"
     },
@@ -440,8 +439,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "192.168.0.56",
-          "value": "192.168.0.56"
+          "isNone": true,
+          "text": "None",
+          "value": ""
         },
         "datasource": "Infiniswap",
         "hide": 0,
@@ -494,5 +494,5 @@
   "timezone": "",
   "title": "block_device",
   "uid": "DxYJ2HSiz",
-  "version": 10
+  "version": 13
 }

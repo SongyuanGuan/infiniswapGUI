@@ -1,148 +1,184 @@
 {
-    "annotations": {
-      "list": [
-        {
-          "$$hashKey": "object:12755",
-          "builtIn": 1,
-          "datasource": "-- Grafana --",
-          "enable": true,
-          "hide": true,
-          "iconColor": "rgba(0, 211, 255, 1)",
-          "name": "Annotations & Alerts",
-          "type": "dashboard"
-        }
-      ]
-    },
-    "editable": true,
-    "gnetId": null,
-    "graphTooltip": 0,
-    "id": 4,
-    "iteration": 1528952950243,
-    "links": [
+  "annotations": {
+    "list": [
       {
-        "asDropdown": false,
-        "icon": "external link",
-        "tags": [],
-        "type": "dashboards"
+        "$$hashKey": "object:201",
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
       }
-    ],
-    "panels": [
+    ]
+  },
+  "editable": true,
+  "gnetId": null,
+  "graphTooltip": 0,
+  "id": 4,
+  "iteration": 1529816930744,
+  "links": [
+    {
+      "asDropdown": false,
+      "icon": "external link",
+      "tags": [],
+      "type": "dashboards"
+    }
+  ],
+  "panels": [
+    {
+      "content": "<canvas id=\"myCanvas\">\r\n</canvas>\r\n<p id=\"chunk_info\"> </p>\r\n<form name=\"data\">\r\n    <input type=\"hidden\" name=\"mem_status\" value=$mem_status/>\r\n</form>\r\n<script>\r\n   \r\n    var mem_status = document.data.mem_status.value;\r\n    var num = 32;\r\n    var canvas = document.getElementById(\"myCanvas\");\r\n    canvas.width = window.innerWidth * 8.6 / 10;\r\n    canvas.height = window.innerWidth / 10;\r\n    var ctx = canvas.getContext(\"2d\");\r\n    var left = canvas.width / (num + 2);\r\n    var right = canvas.width * (num + 1) / (num + 2);\r\n    var blockwidth = canvas.width / num * 4 / 5;\r\n    var distance = canvas.width / (num + 2);\r\n    var blockheight = canvas.height / 4 * 3;\r\n    var graphtop = canvas.height / 8;\r\n    var fontsize = canvas.height / 8;\r\n    var lastShowBlock = 0;\r\n    var moving = false;\r\n\r\n    function drawMemBlock(i) {\r\n        if (i < 0) {\r\n            return;\r\n        }\r\n        var type = mem_status[i];\r\n        switch (type) {\r\n            case '0':\r\n                ctx.fillStyle = \"#EEEEEE\";\r\n                break;\r\n            case '1':\r\n                ctx.fillStyle = \"#00FFFF\";\r\n                break;\r\n            case '2':\r\n                ctx.fillStyle = \"#FF0000\";\r\n                break;\r\n        }\r\n        ctx.fillRect(left + distance * i, graphtop, blockwidth, blockheight);\r\n    }\r\n\r\n    function drawMemBlocks() {\r\n        for (var i = 0; i < num; i++) {\r\n            drawMemBlock(i);\r\n        }\r\n    }\r\n\r\n    drawMemBlocks();\r\n\r\n    setInterval(function(){\r\n        var new_mem_status = document.data.mem_status.value;\r\n        if (new_mem_status !== mem_status){\r\n            mem_status = new_mem_status;\r\n            drawMemBlocks();\r\n        }\r\n    }, 5000);\r\n    \r\n    canvas.onmousemove = function (e) {\r\n        if (moving) {\r\n            return;\r\n        }\r\n        moving = true;\r\n        var rect = this.getBoundingClientRect();\r\n        var canvasPoint = {\r\n            x: e.clientX - rect.left,\r\n            y: e.clientY - rect.top\r\n        };\r\n\r\n        var inblock = false;\r\n        for (var i = 1; i <= num; i++) {\r\n            if (canvasPoint.x > left + (i - 1) * distance && canvasPoint.x < left + (i - 1) * distance + blockwidth && canvasPoint.y > graphtop && canvasPoint.y < graphtop + blockheight) {\r\n                if (i !== lastShowBlock) {\r\n                    ctx.textAlign = \"center\";\r\n                    ctx.font = fontsize + \"px Arial\";\r\n                    ctx.fillStyle = \"#000000\";\r\n                    ctx.fillText(i.toString(), left + (i - 1) * distance + 0.5 * blockwidth, graphtop + 0.6 * blockheight);\r\n                    drawMemBlock(lastShowBlock - 1);\r\n                    lastShowBlock = i;\r\n\r\n                    switch (mem_status[i]){\r\n                        case '0':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is either free or used by local program.\";\r\n                        break;\r\n                        case '1':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is allocated but not used.\";\r\n                        break;\r\n                        case '2':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is being used by device: 0, chunk: 0.\";\r\n                        break;\r\n                    }\r\n                }\r\n                inblock = true;\r\n            }\r\n        }\r\n        if (!inblock){\r\n            drawMemBlock(lastShowBlock - 1);\r\n            lastShowBlock = 0;\r\n            document.getElementById('chunk_info').innerHTML = \"\";\r\n        }\r\n        moving = false;\r\n    };\r\n    \r\n    /*\r\n    function WebSocketTest() {\r\n            if (\"WebSocket\" in window) {\r\n                alert(\"WebSocket is supported by your Browser!\");\r\n                // Let us open a web socket\r\n                var ws = new WebSocket(\"ws://localhost:9998/echo\");\r\n                ws.onopen = function () {\r\n                    // Web Socket is connected, send data using send()\r\n                    ws.send(\"Message to send\");\r\n                    alert(\"Message is sent...\");\r\n                };\r\n                ws.onmessage = function (evt) {\r\n                    var received_msg = evt.data;\r\n                    alert(\"Message is received...\");\r\n                };\r\n                ws.onclose = function () {\r\n                    // websocket is closed.\r\n                    alert(\"Connection is closed...\");\r\n                };\r\n            }\r\n            else {\r\n                // The browser doesn't support WebSocket\r\n                alert(\"WebSocket NOT supported by your Browser!\");\r\n            }\r\n        }\r\n        WebSocketTest();\r\n    */\r\n</script>",
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 4,
+      "mode": "html",
+      "title": "Panel Title",
+      "type": "text"
+    },
+    {
+      "aliasColors": {},
+      "breakPoint": "50%",
+      "cacheTimeout": null,
+      "combine": {
+        "label": "Others",
+        "threshold": 0
+      },
+      "datasource": "Infiniswap",
+      "fontSize": "80%",
+      "format": "short",
+      "gridPos": {
+        "h": 10,
+        "w": 15,
+        "x": 0,
+        "y": 5
+      },
+      "id": 2,
+      "interval": null,
+      "legend": {
+        "show": true,
+        "values": true
+      },
+      "legendType": "Under graph",
+      "links": [],
+      "maxDataPoints": 3,
+      "nullPointMode": "connected",
+      "pieType": "pie",
+      "strokeWidth": 1,
+      "targets": [
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_free as value,\n  \"free\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC\n",
+          "refId": "A"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_mapped as value,\n  \"used\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC\n",
+          "refId": "B"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_allocated as value,\n  \"allocated but not used\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC",
+          "refId": "C"
+        }
+      ],
+      "title": "Panel Title",
+      "type": "grafana-piechart-panel",
+      "valueName": "current"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 16,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
       {
-        "aliasColors": {},
-        "breakPoint": "50%",
-        "cacheTimeout": null,
-        "combine": {
-          "label": "Others",
-          "threshold": 0
+        "allValue": null,
+        "current": {
+          "text": "192.168.0.57",
+          "value": "192.168.0.57"
         },
         "datasource": "Infiniswap",
-        "fontSize": "80%",
-        "format": "short",
-        "gridPos": {
-          "h": 10,
-          "w": 15,
-          "x": 0,
-          "y": 0
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "device_ip",
+        "options": [],
+        "query": "select dev_ip from daemon where time > NOW() - 10000",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "11111111100000000000000000000000",
+          "value": "11111111100000000000000000000000"
         },
-        "id": 2,
-        "interval": null,
-        "legend": {
-          "show": true,
-          "values": true
-        },
-        "legendType": "Under graph",
-        "links": [],
-        "maxDataPoints": 3,
-        "nullPointMode": "connected",
-        "pieType": "pie",
-        "strokeWidth": 1,
-        "targets": [
-          {
-            "alias": "",
-            "format": "time_series",
-            "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_free as value,\n  \"free\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC\n",
-            "refId": "A"
-          },
-          {
-            "alias": "",
-            "format": "time_series",
-            "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_mapped as value,\n  \"used\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC\n",
-            "refId": "B"
-          },
-          {
-            "alias": "",
-            "format": "time_series",
-            "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_allocated as value,\n  \"allocated but not used\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC",
-            "refId": "C"
-          }
-        ],
-        "title": "Panel Title",
-        "type": "grafana-piechart-panel",
-        "valueName": "current"
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "mem_status",
+        "options": [],
+        "query": "select mem_status from daemon_mem where dev_ip = \"$device_ip\"",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
+    ]
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {
+    "refresh_intervals": [
+      "5s",
+      "10s",
+      "30s",
+      "1m",
+      "5m",
+      "15m",
+      "30m",
+      "1h",
+      "2h",
+      "1d"
     ],
-    "refresh": "10s",
-    "schemaVersion": 16,
-    "style": "dark",
-    "tags": [],
-    "templating": {
-      "list": [
-        {
-          "allValue": null,
-          "current": {
-            "text": "192.168.0.57",
-            "value": "192.168.0.57"
-          },
-          "datasource": "Infiniswap",
-          "hide": 0,
-          "includeAll": false,
-          "label": null,
-          "multi": false,
-          "name": "device_ip",
-          "options": [],
-          "query": "select dev_ip from daemon",
-          "refresh": 1,
-          "regex": "",
-          "sort": 0,
-          "tagValuesQuery": "",
-          "tags": [],
-          "tagsQuery": "",
-          "type": "query",
-          "useTags": false
-        }
-      ]
-    },
-    "time": {
-      "from": "now-15m",
-      "to": "now"
-    },
-    "timepicker": {
-      "refresh_intervals": [
-        "5s",
-        "10s",
-        "30s",
-        "1m",
-        "5m",
-        "15m",
-        "30m",
-        "1h",
-        "2h",
-        "1d"
-      ],
-      "time_options": [
-        "5m",
-        "15m",
-        "1h",
-        "6h",
-        "12h",
-        "24h",
-        "2d",
-        "7d",
-        "30d"
-      ]
-    },
-    "timezone": "",
-    "title": "daemon",
-    "uid": "ztudW-Iiz",
-    "version": 3
-  }
+    "time_options": [
+      "5m",
+      "15m",
+      "1h",
+      "6h",
+      "12h",
+      "24h",
+      "2d",
+      "7d",
+      "30d"
+    ]
+  },
+  "timezone": "",
+  "title": "daemon",
+  "uid": "ztudW-Iiz",
+  "version": 14
+}
