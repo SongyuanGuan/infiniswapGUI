@@ -1,0 +1,189 @@
+<canvas id="myCanvas" width="200" height="100" style="border:1px solid #000000;">
+</canvas>
+<form name="data">
+    <input type="hidden" name="device_num" value=$device_num />
+    <input type="hidden" name="daemon_num" value=$daemon_num />
+    <input type="hidden" name="bd_num" value=$bd_num />
+    <input type="hidden" name="daemon_ip" value=$daemon_ip />
+    <input type="hidden" name="bd_ip" value=$bd_ip />
+    <input type="hidden" name="daemon_free" value=$daemon_free />
+    <input type="hidden" name="daemon_allocated" value=$daemon_allocated />
+    <input type="hidden" name="daemon_mapped" value=$daemon_mapped />
+    <input type="hidden" name="bd_throughput" value=$bd_throughput />
+    <input type="hidden" name="bd_latency" value=$bd_latency />
+</form>
+<script>
+    var num = 0;
+    var dev_ips = [];
+    var daemon_ips = "";
+    var bd_ips = "";
+    var daemon_set, bd_set;
+    var daemon_map, bd_map;
+
+    var canvas = document.getElementById("myCanvas");
+    canvas.width = window.innerWidth * 0.9;
+    canvas.height = canvas.width / 10;
+    var ctx = canvas.getContext("2d");
+    var left = canvas.width / 9;
+    var right = canvas.width * 8 / 9;
+    var blockwidth = canvas.width / 5;
+    var blockheight, fontsize;
+
+    function adjust_graph_height() {
+        canvas.height = canvas.width / 10 * (2 * Math.sqrt(num) + 1);
+        blockheight = canvas.height / (2 * num + 1);
+        fontsize = canvas.height / (2 * num + 1) / 3;
+    }
+
+    function update_devices() {
+        var new_num = document.data.device_num.value;
+        var new_daemon_ips = "";
+        if (document.data.daemon_num.value > 0) {
+            new_daemon_ips = document.data.daemon_ip.value;
+        }
+        var new_bd_ips = "";
+        if (document.data.bd_num.value > 0) {
+            new_bd_ips = document.data.bd_ip.value;
+        }
+
+        // update if device status changes 
+        if (new_num !== num || new_daemon_ips !== daemon_ips || new_bd_ips !== bd_ips) {
+            if (new_num !== num) {
+                num = new_num;
+                adjust_graph_height();
+            }
+            daemon_ips = new_daemon_ips;
+            bd_ips = new_bd_ips;
+            daemon_set = new Set();
+            bd_set = new Set();
+            if (daemon_ips !== "") {
+                daemon_set = new Set(daemon_ips.substring(1, daemon_ips.length - 1).split(','));
+            }
+            if (bd_ips !== "") {
+                bd_set = new Set(bd_ips.substring(1, daemon_ips.length - 1).split(','));
+            }
+            
+            daemon_map = new Map();
+            bd_map = new Map();
+
+            // map each daemon with the recording memory status
+            if (daemon_ips !== "") {
+                daemon_list = daemon_ips.substring(1, daemon_ips.length - 1).split(',');
+                free_list = document.data.daemon_free.value.substring(1, document.data.daemon_free.value.length - 1).split(',');
+                allocated_list = document.data.daemon_allocated.value.substring(1, document.data.daemon_allocated.value.length - 1).split(',');
+                mapped_list = document.data.daemon_mapped.value.substring(1, document.data.daemon_mapped.value.length - 1).split(',');
+                for (var i = 0; i < daemon_list.length; i++){
+                    daemon_map.set(daemon_list[i], {free: free_list[i], allocated: allocated_list[i], mapped: mapped_list[i]});
+                }
+            }
+
+
+            //get the union of bd and daemon
+            var dev_ip_set = new Set();
+            for (var daemon_ip of daemon_set) {
+                dev_ip_set.add(daemon_ip);
+            }
+            for (var bd_ip of bd_set) {
+                dev_ip_set.add(bd_ip);
+            }
+            dev_ips = Array.from(dev_ip_set);
+            dev_ips.sort();
+            render();
+        }
+    }
+
+    setInterval(update_devices(), 5000);
+
+    function draw_bd_block(i) {
+        if (bd_set.has(dev_ips[i])) {
+            ctx.fillStyle = "#EE0000";
+        }
+        else {
+            ctx.fillStyle = "#666666";
+        }
+        ctx.fillRect(left, blockheight * (2 * i + 1), blockwidth, blockheight);
+        ctx.fillStyle = "#000000";
+        ctx.textAlign = "center";
+        ctx.font = fontsize + "px Arial";
+        ctx.fillText(dev_ips[i], left + blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 2);
+    }
+
+    function draw_daemon_block(i) {
+        if (daemon_set.has(dev_ips[i])) {
+            var free = parseInt(daemon_map.get(dev_ips[i]).free);
+            var allocated = parseInt(daemon_map.get(dev_ips[i]).allocated);
+            var mapped = parseInt(daemon_map.get(dev_ips[i]).mapped);
+            var total_mem = free + allocated + mapped;
+            ctx.fillStyle = "green";
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth, blockheight);
+            ctx.fillStyle = "yellow";
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * (allocated + mapped) / total_mem , blockheight);
+            ctx.fillStyle = "orange";
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * mapped / total_mem , blockheight);
+        }
+        else {
+            ctx.fillStyle = "#666666";
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth, blockheight);
+        }
+        
+        ctx.fillStyle = "#000000";
+        ctx.textAlign = "center";
+        ctx.font = fontsize + "px Arial";
+        ctx.fillText(dev_ips[i], right - blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 2);
+    }
+
+    function link(i, j) {
+        ctx.beginPath();
+        ctx.moveTo(left + blockwidth, blockheight * (2 * i + 1) + blockheight / 2);
+        var lineWidth = 0;
+        var throughput = 40;
+        if (throughput < 50) {
+            lineWidth = 2;
+        }
+        else if (throughput >= 50 && throughput < 75) {
+            lineWidth = 5;
+        }
+        else if (throuput >= 75 && throughput < 100) {
+            lineWidth = 8;
+        }
+        else {
+            lineWidth = 10;
+        }
+        var latency = 80;
+        var style = "";
+        if (latency < 30) {
+            style = "green";
+        }
+        else if (latency >= 30 && latency < 60) {
+            style = "yellow";
+        }
+        else if (latency > 60 && latency < 80) {
+            style = "orange"
+        }
+        else {
+            style = "red";
+        }
+        ctx.strokeStyle = style;
+        ctx.lineWidth = lineWidth;
+        ctx.lineTo(right - blockwidth, blockheight * (2 * j + 1) + blockheight / 2);
+        ctx.stroke();
+    }
+
+    function render() {
+        ctx.fillStyle = "#FF0000";
+        ctx.textAlign = "center";
+        ctx.font = fontsize + "px Arial";
+        ctx.fillText("BD", left + blockwidth / 2, blockheight / 2 + fontsize / 2);
+        ctx.fillStyle = "#FFFF00";
+        ctx.textAlign = "center";
+        ctx.font = fontsize + "px Arial";
+        ctx.fillText("DAEMON", right - blockwidth / 2, blockheight / 2 + fontsize / 2);
+        for (var i = 0; i < num; i++) {
+            draw_bd_block(i);
+            draw_daemon_block(i);
+        }
+        link(0, 1);
+    }
+
+    render();
+</script>

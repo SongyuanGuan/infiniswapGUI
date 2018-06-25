@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:201",
+        "$$hashKey": "object:5662",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 4,
-  "iteration": 1529816930744,
+  "iteration": 1529908848360,
   "links": [
     {
       "asDropdown": false,
@@ -28,7 +28,7 @@
   ],
   "panels": [
     {
-      "content": "<canvas id=\"myCanvas\">\r\n</canvas>\r\n<p id=\"chunk_info\"> </p>\r\n<form name=\"data\">\r\n    <input type=\"hidden\" name=\"mem_status\" value=$mem_status/>\r\n</form>\r\n<script>\r\n   \r\n    var mem_status = document.data.mem_status.value;\r\n    var num = 32;\r\n    var canvas = document.getElementById(\"myCanvas\");\r\n    canvas.width = window.innerWidth * 8.6 / 10;\r\n    canvas.height = window.innerWidth / 10;\r\n    var ctx = canvas.getContext(\"2d\");\r\n    var left = canvas.width / (num + 2);\r\n    var right = canvas.width * (num + 1) / (num + 2);\r\n    var blockwidth = canvas.width / num * 4 / 5;\r\n    var distance = canvas.width / (num + 2);\r\n    var blockheight = canvas.height / 4 * 3;\r\n    var graphtop = canvas.height / 8;\r\n    var fontsize = canvas.height / 8;\r\n    var lastShowBlock = 0;\r\n    var moving = false;\r\n\r\n    function drawMemBlock(i) {\r\n        if (i < 0) {\r\n            return;\r\n        }\r\n        var type = mem_status[i];\r\n        switch (type) {\r\n            case '0':\r\n                ctx.fillStyle = \"#EEEEEE\";\r\n                break;\r\n            case '1':\r\n                ctx.fillStyle = \"#00FFFF\";\r\n                break;\r\n            case '2':\r\n                ctx.fillStyle = \"#FF0000\";\r\n                break;\r\n        }\r\n        ctx.fillRect(left + distance * i, graphtop, blockwidth, blockheight);\r\n    }\r\n\r\n    function drawMemBlocks() {\r\n        for (var i = 0; i < num; i++) {\r\n            drawMemBlock(i);\r\n        }\r\n    }\r\n\r\n    drawMemBlocks();\r\n\r\n    setInterval(function(){\r\n        var new_mem_status = document.data.mem_status.value;\r\n        if (new_mem_status !== mem_status){\r\n            mem_status = new_mem_status;\r\n            drawMemBlocks();\r\n        }\r\n    }, 5000);\r\n    \r\n    canvas.onmousemove = function (e) {\r\n        if (moving) {\r\n            return;\r\n        }\r\n        moving = true;\r\n        var rect = this.getBoundingClientRect();\r\n        var canvasPoint = {\r\n            x: e.clientX - rect.left,\r\n            y: e.clientY - rect.top\r\n        };\r\n\r\n        var inblock = false;\r\n        for (var i = 1; i <= num; i++) {\r\n            if (canvasPoint.x > left + (i - 1) * distance && canvasPoint.x < left + (i - 1) * distance + blockwidth && canvasPoint.y > graphtop && canvasPoint.y < graphtop + blockheight) {\r\n                if (i !== lastShowBlock) {\r\n                    ctx.textAlign = \"center\";\r\n                    ctx.font = fontsize + \"px Arial\";\r\n                    ctx.fillStyle = \"#000000\";\r\n                    ctx.fillText(i.toString(), left + (i - 1) * distance + 0.5 * blockwidth, graphtop + 0.6 * blockheight);\r\n                    drawMemBlock(lastShowBlock - 1);\r\n                    lastShowBlock = i;\r\n\r\n                    switch (mem_status[i]){\r\n                        case '0':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is either free or used by local program.\";\r\n                        break;\r\n                        case '1':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is allocated but not used.\";\r\n                        break;\r\n                        case '2':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is being used by device: 0, chunk: 0.\";\r\n                        break;\r\n                    }\r\n                }\r\n                inblock = true;\r\n            }\r\n        }\r\n        if (!inblock){\r\n            drawMemBlock(lastShowBlock - 1);\r\n            lastShowBlock = 0;\r\n            document.getElementById('chunk_info').innerHTML = \"\";\r\n        }\r\n        moving = false;\r\n    };\r\n    \r\n    /*\r\n    function WebSocketTest() {\r\n            if (\"WebSocket\" in window) {\r\n                alert(\"WebSocket is supported by your Browser!\");\r\n                // Let us open a web socket\r\n                var ws = new WebSocket(\"ws://localhost:9998/echo\");\r\n                ws.onopen = function () {\r\n                    // Web Socket is connected, send data using send()\r\n                    ws.send(\"Message to send\");\r\n                    alert(\"Message is sent...\");\r\n                };\r\n                ws.onmessage = function (evt) {\r\n                    var received_msg = evt.data;\r\n                    alert(\"Message is received...\");\r\n                };\r\n                ws.onclose = function () {\r\n                    // websocket is closed.\r\n                    alert(\"Connection is closed...\");\r\n                };\r\n            }\r\n            else {\r\n                // The browser doesn't support WebSocket\r\n                alert(\"WebSocket NOT supported by your Browser!\");\r\n            }\r\n        }\r\n        WebSocketTest();\r\n    */\r\n</script>",
+      "content": "<canvas id=\"myCanvas\">\r\n</canvas>\r\n<p id=\"chunk_info\"> </p>\r\n<form name=\"data\">\r\n    <input type=\"hidden\" name=\"mem_status\" value=$mem_status/>\r\n</form>\r\n<script>\r\n   \r\n    var mem_status = document.data.mem_status.value;\r\n    var num = 14;\r\n    var canvas = document.getElementById(\"myCanvas\");\r\n    canvas.width = window.innerWidth * 8.6 / 10;\r\n    canvas.height = window.innerWidth / 10;\r\n    var ctx = canvas.getContext(\"2d\");\r\n    var left = canvas.width / (num + 2);\r\n    var right = canvas.width * (num + 1) / (num + 2);\r\n    var blockwidth = canvas.width / num * 4 / 5;\r\n    var distance = canvas.width / (num + 2);\r\n    var blockheight = canvas.height / 4 * 3;\r\n    var graphtop = canvas.height / 8;\r\n    var fontsize = canvas.height / 8;\r\n    var lastShowBlock = 0;\r\n    var moving = false;\r\n\r\n    function drawMemBlock(i) {\r\n        if (i < 0) {\r\n            return;\r\n        }\r\n        var type = mem_status[i];\r\n        switch (type) {\r\n            case '0':\r\n                ctx.fillStyle = \"#EEEEEE\";\r\n                break;\r\n            case '1':\r\n                ctx.fillStyle = \"#00FFFF\";\r\n                break;\r\n            case '2':\r\n                ctx.fillStyle = \"#FF0000\";\r\n                break;\r\n        }\r\n        ctx.fillRect(left + distance * i, graphtop, blockwidth, blockheight);\r\n    }\r\n\r\n    function drawMemBlocks() {\r\n        for (var i = 0; i < num; i++) {\r\n            drawMemBlock(i);\r\n        }\r\n    }\r\n\r\n    drawMemBlocks();\r\n\r\n    setInterval(function(){\r\n        var new_mem_status = document.data.mem_status.value;\r\n        if (new_mem_status !== mem_status){\r\n            mem_status = new_mem_status;\r\n            drawMemBlocks();\r\n        }\r\n    }, 5000);\r\n    \r\n    canvas.onmousemove = function (e) {\r\n        if (moving) {\r\n            return;\r\n        }\r\n        moving = true;\r\n        var rect = this.getBoundingClientRect();\r\n        var canvasPoint = {\r\n            x: e.clientX - rect.left,\r\n            y: e.clientY - rect.top\r\n        };\r\n\r\n        var inblock = false;\r\n        for (var i = 1; i <= num; i++) {\r\n            if (canvasPoint.x > left + (i - 1) * distance && canvasPoint.x < left + (i - 1) * distance + blockwidth && canvasPoint.y > graphtop && canvasPoint.y < graphtop + blockheight) {\r\n                if (i !== lastShowBlock) {\r\n                    ctx.textAlign = \"center\";\r\n                    ctx.font = fontsize + \"px Arial\";\r\n                    ctx.fillStyle = \"#000000\";\r\n                    ctx.fillText(i.toString(), left + (i - 1) * distance + 0.5 * blockwidth, graphtop + 0.6 * blockheight);\r\n                    drawMemBlock(lastShowBlock - 1);\r\n                    lastShowBlock = i;\r\n\r\n                    switch (mem_status[i]){\r\n                        case '0':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is either free or used by local program.\";\r\n                        break;\r\n                        case '1':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is allocated but not used.\";\r\n                        break;\r\n                        case '2':\r\n                        document.getElementById('chunk_info').innerHTML = \"This chunk is being used by device: 0, chunk: 0.\";\r\n                        break;\r\n                    }\r\n                }\r\n                inblock = true;\r\n            }\r\n        }\r\n        if (!inblock){\r\n            drawMemBlock(lastShowBlock - 1);\r\n            lastShowBlock = 0;\r\n            document.getElementById('chunk_info').innerHTML = \"\";\r\n        }\r\n        moving = false;\r\n    };\r\n    \r\n    /*\r\n    function WebSocketTest() {\r\n            if (\"WebSocket\" in window) {\r\n                alert(\"WebSocket is supported by your Browser!\");\r\n                // Let us open a web socket\r\n                var ws = new WebSocket(\"ws://localhost:9998/echo\");\r\n                ws.onopen = function () {\r\n                    // Web Socket is connected, send data using send()\r\n                    ws.send(\"Message to send\");\r\n                    alert(\"Message is sent...\");\r\n                };\r\n                ws.onmessage = function (evt) {\r\n                    var received_msg = evt.data;\r\n                    alert(\"Message is received...\");\r\n                };\r\n                ws.onclose = function () {\r\n                    // websocket is closed.\r\n                    alert(\"Connection is closed...\");\r\n                };\r\n            }\r\n            else {\r\n                // The browser doesn't support WebSocket\r\n                alert(\"WebSocket NOT supported by your Browser!\");\r\n            }\r\n        }\r\n        WebSocketTest();\r\n    */\r\n</script>",
       "gridPos": {
         "h": 5,
         "w": 24,
@@ -53,7 +53,7 @@
       "format": "short",
       "gridPos": {
         "h": 10,
-        "w": 15,
+        "w": 9,
         "x": 0,
         "y": 5
       },
@@ -92,9 +92,103 @@
       "title": "Panel Title",
       "type": "grafana-piechart-panel",
       "valueName": "current"
+    },
+    {
+      "aliasColors": {},
+      "bars": false,
+      "dashLength": 10,
+      "dashes": false,
+      "datasource": null,
+      "fill": 1,
+      "gridPos": {
+        "h": 10,
+        "w": 15,
+        "x": 9,
+        "y": 5
+      },
+      "id": 6,
+      "legend": {
+        "avg": false,
+        "current": false,
+        "max": false,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": false
+      },
+      "lines": true,
+      "linewidth": 1,
+      "nullPointMode": "null",
+      "percentage": false,
+      "pointradius": 5,
+      "points": false,
+      "renderer": "flot",
+      "seriesOverrides": [],
+      "spaceLength": 10,
+      "stack": false,
+      "steppedLine": false,
+      "targets": [
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  (RAM_free + RAM_allocated + RAM_mapped) as value,\n  \"total\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC",
+          "refId": "A"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  (RAM_allocated + RAM_mapped) as value,\n  \"allocated\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC\n",
+          "refId": "B"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  RAM_mapped as value,\n  \"mapped\" as metric\nFROM daemon\nWHERE $__timeFilter(time) and dev_ip = '$device_ip'\nORDER BY time ASC\n",
+          "refId": "C"
+        }
+      ],
+      "thresholds": [],
+      "timeFrom": null,
+      "timeShift": null,
+      "title": "Panel Title",
+      "tooltip": {
+        "shared": true,
+        "sort": 0,
+        "value_type": "individual"
+      },
+      "type": "graph",
+      "xaxis": {
+        "buckets": null,
+        "mode": "time",
+        "name": null,
+        "show": true,
+        "values": []
+      },
+      "yaxes": [
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        },
+        {
+          "format": "short",
+          "label": null,
+          "logBase": 1,
+          "max": null,
+          "min": null,
+          "show": true
+        }
+      ],
+      "yaxis": {
+        "align": false,
+        "alignLevel": null
+      }
     }
   ],
-  "refresh": "5s",
+  "refresh": "10s",
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
@@ -103,8 +197,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "192.168.0.57",
-          "value": "192.168.0.57"
+          "text": "192.168.0.58",
+          "value": "192.168.0.58"
         },
         "datasource": "Infiniswap",
         "hide": 0,
@@ -113,7 +207,7 @@
         "multi": false,
         "name": "device_ip",
         "options": [],
-        "query": "select dev_ip from daemon where time > NOW() - 10000",
+        "query": "select dev_ip from daemon order by time desc limit $daemon_num;",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -126,17 +220,40 @@
       {
         "allValue": null,
         "current": {
-          "text": "11111111100000000000000000000000",
-          "value": "11111111100000000000000000000000"
+          "text": "22110000000000000000000000000000",
+          "value": "22110000000000000000000000000000"
         },
         "datasource": "Infiniswap",
-        "hide": 0,
+        "hide": 2,
         "includeAll": false,
         "label": null,
         "multi": false,
         "name": "mem_status",
         "options": [],
-        "query": "select mem_status from daemon_mem where dev_ip = \"$device_ip\"",
+        "query": "select mem_status from daemon_mem where dev_ip = \"$device_ip\" order by time desc limit 1 ",
+        "refresh": 1,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "1",
+          "value": "1"
+        },
+        "datasource": "Infiniswap",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "daemon_num",
+        "options": [],
+        "query": "select daemon_num from general_info order by time desc limit 1;",
         "refresh": 1,
         "regex": "",
         "sort": 0,
@@ -149,7 +266,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-30m",
     "to": "now"
   },
   "timepicker": {
@@ -180,5 +297,5 @@
   "timezone": "",
   "title": "daemon",
   "uid": "ztudW-Iiz",
-  "version": 14
+  "version": 17
 }

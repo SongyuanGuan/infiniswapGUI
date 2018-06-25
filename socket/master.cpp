@@ -318,7 +318,7 @@ static void clear_db()
 {
     while (true)
     {
-        for (string table : tables)
+        for (string table : db_tables)
         {
             char str2[200];
             sprintf(str2,

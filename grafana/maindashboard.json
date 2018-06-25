@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:614",
+        "$$hashKey": "object:4957",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,14 +17,31 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 1,
+  "iteration": 1529908717189,
   "links": [
     {
+      "$$hashKey": "object:5188",
+      "asDropdown": true,
       "icon": "external link",
       "tags": [],
+      "title": "Detail Page",
       "type": "dashboards"
     }
   ],
   "panels": [
+    {
+      "content": "<canvas id=\"myCanvas\" width=\"200\" height=\"100\" style=\"border:1px solid #000000;\">\r\n</canvas>\r\n<form name=\"data\">\r\n    <input type=\"hidden\" name=\"device_num\" value=$device_num />\r\n    <input type=\"hidden\" name=\"daemon_num\" value=$daemon_num />\r\n    <input type=\"hidden\" name=\"bd_num\" value=$bd_num />\r\n    <input type=\"hidden\" name=\"daemon_ip\" value=$daemon_ip />\r\n    <input type=\"hidden\" name=\"bd_ip\" value=$bd_ip />\r\n    <input type=\"hidden\" name=\"daemon_free\" value=$daemon_free />\r\n    <input type=\"hidden\" name=\"daemon_allocated\" value=$daemon_allocated />\r\n    <input type=\"hidden\" name=\"daemon_mapped\" value=$daemon_mapped />\r\n    <input type=\"hidden\" name=\"bd_throughput\" value=$bd_throughput />\r\n    <input type=\"hidden\" name=\"bd_latency\" value=$bd_latency />\r\n</form>\r\n<script>\r\n    var num = 0;\r\n    var dev_ips = [];\r\n    var daemon_ips = \"\";\r\n    var bd_ips = \"\";\r\n    var daemon_set, bd_set;\r\n    var daemon_map, bd_map;\r\n\r\n    var canvas = document.getElementById(\"myCanvas\");\r\n    canvas.width = window.innerWidth * 0.9;\r\n    canvas.height = canvas.width / 10;\r\n    var ctx = canvas.getContext(\"2d\");\r\n    var left = canvas.width / 9;\r\n    var right = canvas.width * 8 / 9;\r\n    var blockwidth = canvas.width / 5;\r\n    var blockheight, fontsize;\r\n\r\n    function adjust_graph_height() {\r\n        canvas.height = canvas.width / 10 * (2 * Math.sqrt(num) + 1);\r\n        blockheight = canvas.height / (2 * num + 1);\r\n        fontsize = canvas.height / (2 * num + 1) / 3;\r\n    }\r\n\r\n    function update_devices() {\r\n        var new_num = document.data.device_num.value;\r\n        var new_daemon_ips = \"\";\r\n        if (document.data.daemon_num.value > 0) {\r\n            new_daemon_ips = document.data.daemon_ip.value;\r\n        }\r\n        var new_bd_ips = \"\";\r\n        if (document.data.bd_num.value > 0) {\r\n            new_bd_ips = document.data.bd_ip.value;\r\n        }\r\n\r\n        // update if device status changes \r\n        if (new_num !== num || new_daemon_ips !== daemon_ips || new_bd_ips !== bd_ips) {\r\n            if (new_num !== num) {\r\n                num = new_num;\r\n                adjust_graph_height();\r\n            }\r\n            daemon_ips = new_daemon_ips;\r\n            bd_ips = new_bd_ips;\r\n            daemon_set = new Set();\r\n            bd_set = new Set();\r\n            if (daemon_ips !== \"\") {\r\n                daemon_set = new Set(daemon_ips.substring(1, daemon_ips.length - 1).split(','));\r\n            }\r\n            if (bd_ips !== \"\") {\r\n                bd_set = new Set(bd_ips.substring(1, daemon_ips.length - 1).split(','));\r\n            }\r\n            \r\n            daemon_map = new Map();\r\n            bd_map = new Map();\r\n\r\n            // map each daemon with the recording memory status\r\n            if (daemon_ips !== \"\") {\r\n                daemon_list = daemon_ips.substring(1, daemon_ips.length - 1).split(',');\r\n                free_list = document.data.daemon_free.value.substring(1, document.data.daemon_free.value.length - 1).split(',');\r\n                allocated_list = document.data.daemon_allocated.value.substring(1, document.data.daemon_allocated.value.length - 1).split(',');\r\n                mapped_list = document.data.daemon_mapped.value.substring(1, document.data.daemon_mapped.value.length - 1).split(',');\r\n                for (var i = 0; i < daemon_list.length; i++){\r\n                    daemon_map.set(daemon_list[i], {free: free_list[i], allocated: allocated_list[i], mapped: mapped_list[i]});\r\n                }\r\n            }\r\n\r\n\r\n            //get the union of bd and daemon\r\n            var dev_ip_set = new Set();\r\n            for (var daemon_ip of daemon_set) {\r\n                dev_ip_set.add(daemon_ip);\r\n            }\r\n            for (var bd_ip of bd_set) {\r\n                dev_ip_set.add(bd_ip);\r\n            }\r\n            dev_ips = Array.from(dev_ip_set);\r\n            dev_ips.sort();\r\n            render();\r\n        }\r\n    }\r\n\r\n    setInterval(update_devices(), 5000);\r\n\r\n    function draw_bd_block(i) {\r\n        if (bd_set.has(dev_ips[i])) {\r\n            ctx.fillStyle = \"#EE0000\";\r\n        }\r\n        else {\r\n            ctx.fillStyle = \"#666666\";\r\n        }\r\n        ctx.fillRect(left, blockheight * (2 * i + 1), blockwidth, blockheight);\r\n        ctx.fillStyle = \"#000000\";\r\n        ctx.textAlign = \"center\";\r\n        ctx.font = fontsize + \"px Arial\";\r\n        ctx.fillText(dev_ips[i], left + blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 2);\r\n    }\r\n\r\n    function draw_daemon_block(i) {\r\n        if (daemon_set.has(dev_ips[i])) {\r\n            var free = parseInt(daemon_map.get(dev_ips[i]).free);\r\n            var allocated = parseInt(daemon_map.get(dev_ips[i]).allocated);\r\n            var mapped = parseInt(daemon_map.get(dev_ips[i]).mapped);\r\n            var total_mem = free + allocated + mapped;\r\n            ctx.fillStyle = \"green\";\r\n            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth, blockheight);\r\n            ctx.fillStyle = \"yellow\";\r\n            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * (allocated + mapped) / total_mem , blockheight);\r\n            ctx.fillStyle = \"orange\";\r\n            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * mapped / total_mem , blockheight);\r\n        }\r\n        else {\r\n            ctx.fillStyle = \"#666666\";\r\n            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth, blockheight);\r\n        }\r\n        \r\n        ctx.fillStyle = \"#000000\";\r\n        ctx.textAlign = \"center\";\r\n        ctx.font = fontsize + \"px Arial\";\r\n        ctx.fillText(dev_ips[i], right - blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 2);\r\n    }\r\n\r\n    function link(i, j) {\r\n        ctx.beginPath();\r\n        ctx.moveTo(left + blockwidth, blockheight * (2 * i + 1) + blockheight / 2);\r\n        var lineWidth = 0;\r\n        var throughput = 40;\r\n        if (throughput < 50) {\r\n            lineWidth = 2;\r\n        }\r\n        else if (throughput >= 50 && throughput < 75) {\r\n            lineWidth = 5;\r\n        }\r\n        else if (throuput >= 75 && throughput < 100) {\r\n            lineWidth = 8;\r\n        }\r\n        else {\r\n            lineWidth = 10;\r\n        }\r\n        var latency = 80;\r\n        var style = \"\";\r\n        if (latency < 30) {\r\n            style = \"green\";\r\n        }\r\n        else if (latency >= 30 && latency < 60) {\r\n            style = \"yellow\";\r\n        }\r\n        else if (latency > 60 && latency < 80) {\r\n            style = \"orange\"\r\n        }\r\n        else {\r\n            style = \"red\";\r\n        }\r\n        ctx.strokeStyle = style;\r\n        ctx.lineWidth = lineWidth;\r\n        ctx.lineTo(right - blockwidth, blockheight * (2 * j + 1) + blockheight / 2);\r\n        ctx.stroke();\r\n    }\r\n\r\n    function render() {\r\n        ctx.fillStyle = \"#FF0000\";\r\n        ctx.textAlign = \"center\";\r\n        ctx.font = fontsize + \"px Arial\";\r\n        ctx.fillText(\"BD\", left + blockwidth / 2, blockheight / 2 + fontsize / 2);\r\n        ctx.fillStyle = \"#FFFF00\";\r\n        ctx.textAlign = \"center\";\r\n        ctx.font = fontsize + \"px Arial\";\r\n        ctx.fillText(\"DAEMON\", right - blockwidth / 2, blockheight / 2 + fontsize / 2);\r\n        for (var i = 0; i < num; i++) {\r\n            draw_bd_block(i);\r\n            draw_daemon_block(i);\r\n        }\r\n        link(0, 1);\r\n    }\r\n\r\n    render();\r\n</script>",
+      "gridPos": {
+        "h": 9,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 14,
+      "mode": "html",
+      "title": "Panel Title",
+      "type": "text"
+    },
     {
       "cacheTimeout": null,
       "colorBackground": false,
@@ -47,7 +64,7 @@
         "h": 8,
         "w": 4,
         "x": 0,
-        "y": 0
+        "y": 9
       },
       "id": 1,
       "interval": null,
@@ -135,7 +152,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 0
+        "y": 9
       },
       "id": 9,
       "interval": null,
@@ -205,7 +222,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 0
+        "y": 9
       },
       "id": 3,
       "legend": {
@@ -288,7 +305,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 0
+        "y": 9
       },
       "id": 4,
       "legend": {
@@ -382,7 +399,7 @@
         "h": 4,
         "w": 4,
         "x": 4,
-        "y": 4
+        "y": 13
       },
       "id": 10,
       "interval": null,
@@ -456,7 +473,7 @@
         "h": 8,
         "w": 4,
         "x": 0,
-        "y": 8
+        "y": 17
       },
       "id": 2,
       "interval": null,
@@ -511,7 +528,7 @@
         "h": 8,
         "w": 4,
         "x": 4,
-        "y": 8
+        "y": 17
       },
       "id": 12,
       "interval": null,
@@ -558,7 +575,7 @@
         "h": 8,
         "w": 8,
         "x": 8,
-        "y": 8
+        "y": 17
       },
       "id": 5,
       "legend": {
@@ -643,7 +660,7 @@
         "h": 8,
         "w": 8,
         "x": 16,
-        "y": 8
+        "y": 17
       },
       "id": 6,
       "legend": {
@@ -723,7 +740,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 16
+        "y": 25
       },
       "id": 7,
       "links": [],
@@ -777,7 +794,7 @@
         "h": 5,
         "w": 24,
         "x": 0,
-        "y": 21
+        "y": 30
       },
       "id": 11,
       "links": [],
@@ -829,7 +846,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 26
+        "y": 35
       },
       "id": 8,
       "links": [],
@@ -843,7 +860,192 @@
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "allValue": null,
+        "current": {
+          "text": "3",
+          "value": "3"
+        },
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "device_num",
+        "options": [],
+        "query": "select device_num from general_info order by time desc limit 1;",
+        "refresh": 2,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": true,
+        "label": null,
+        "multi": true,
+        "name": "daemon_ip",
+        "options": [],
+        "query": "select dev_ip from daemon group by dev_ip order by time desc limit $daemon_num;",
+        "refresh": 2,
+        "regex": "",
+        "sort": 6,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": true,
+        "label": null,
+        "multi": true,
+        "name": "bd_ip",
+        "options": [],
+        "query": "select dev_ip from block_device group by dev_ip order by time desc limit $bd_num;",
+        "refresh": 1,
+        "regex": "",
+        "sort": 6,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "1",
+          "value": "1"
+        },
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "bd_num",
+        "options": [],
+        "query": "select bd_num from general_info order by time desc limit 1;",
+        "refresh": 2,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "1",
+          "value": "1"
+        },
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "daemon_num",
+        "options": [],
+        "query": "select daemon_num from general_info order by time desc limit 1;",
+        "refresh": 2,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "daemon_free",
+        "options": [],
+        "query": "select RAM_free from (select * from daemon order by time desc) as t group by dev_ip order by time desc limit $daemon_num;",
+        "refresh": 2,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "daemon_allocated",
+        "options": [],
+        "query": "select RAM_allocated from (select * from daemon order by time desc) as t group by dev_ip order by time desc limit $daemon_num;",
+        "refresh": 2,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "All",
+          "value": "$__all"
+        },
+        "datasource": "Infiniswap",
+        "hide": 0,
+        "includeAll": true,
+        "label": null,
+        "multi": false,
+        "name": "daemon_mapped",
+        "options": [],
+        "query": "select RAM_mapped from (select * from daemon order by time desc) as t group by dev_ip order by time desc limit $daemon_num;",
+        "refresh": 2,
+        "regex": "",
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      }
+    ]
   },
   "time": {
     "from": "now-15m",
@@ -877,5 +1079,5 @@
   "timezone": "",
   "title": "General Info",
   "uid": "000000003",
-  "version": 11
+  "version": 22
 }

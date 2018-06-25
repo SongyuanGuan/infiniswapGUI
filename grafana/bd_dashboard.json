@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:326",
+        "$$hashKey": "object:4019",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1529816997811,
+  "iteration": 1529908375044,
   "links": [
     {
       "icon": "external link",
@@ -405,9 +405,10 @@
       ],
       "targets": [
         {
+          "$$hashKey": "object:4149",
           "alias": "",
           "format": "table",
-          "rawSql": "SELECT FROM_UNIXTIME(UNIX_TIMESTAMP(time)), total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency from block_device;",
+          "rawSql": "SELECT FROM_UNIXTIME(UNIX_TIMESTAMP(time)), total_IO, remote_IO, pagein_throughput as IN_TP, pageout_throughput as OUT_TP, pagein_latency as IN_latency, pageout_latency as OUT_latency from block_device;",
           "refId": "A"
         }
       ],
@@ -439,9 +440,8 @@
       {
         "allValue": null,
         "current": {
-          "isNone": true,
-          "text": "None",
-          "value": ""
+          "text": "192.168.0.56",
+          "value": "192.168.0.56"
         },
         "datasource": "Infiniswap",
         "hide": 0,
@@ -450,10 +450,33 @@
         "multi": false,
         "name": "device_ip",
         "options": [],
-        "query": "select dev_ip from block_device",
+        "query": "select dev_ip from block_device group by dev_ip order by time desc  limit $bd_num;",
         "refresh": 1,
         "regex": "",
         "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {
+          "text": "1",
+          "value": "1"
+        },
+        "datasource": "Infiniswap",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "bd_num",
+        "options": [],
+        "query": "select bd_num from general_info order by time desc limit 1;",
+        "refresh": 2,
+        "regex": "",
+        "sort": 1,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -494,5 +517,5 @@
   "timezone": "",
   "title": "block_device",
   "uid": "DxYJ2HSiz",
-  "version": 13
+  "version": 16
 }
