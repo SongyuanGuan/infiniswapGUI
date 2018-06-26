@@ -9,8 +9,10 @@
     <input type="hidden" name="daemon_free" value=$daemon_free />
     <input type="hidden" name="daemon_allocated" value=$daemon_allocated />
     <input type="hidden" name="daemon_mapped" value=$daemon_mapped />
-    <input type="hidden" name="bd_throughput" value=$bd_throughput />
-    <input type="hidden" name="bd_latency" value=$bd_latency />
+    <input type="hidden" name="bd_pagein_throughput" value=$bd_pagein_throughput />
+    <input type="hidden" name="bd_pageout_throughput" value=$bd_pageout_throughput />
+    <input type="hidden" name="bd_pagein_latency" value=$bd_pagein_latency />
+    <input type="hidden" name="bd_pageout_latency" value=$bd_pageout_latency />
 </form>
 <script>
     var num = 0;
@@ -21,7 +23,7 @@
     var daemon_map, bd_map;
 
     var canvas = document.getElementById("myCanvas");
-    canvas.width = window.innerWidth * 0.9;
+    canvas.width = window.innerWidth * 0.85;
     canvas.height = canvas.width / 10;
     var ctx = canvas.getContext("2d");
     var left = canvas.width / 9;
@@ -62,20 +64,9 @@
             if (bd_ips !== "") {
                 bd_set = new Set(bd_ips.substring(1, daemon_ips.length - 1).split(','));
             }
-            
+
             daemon_map = new Map();
             bd_map = new Map();
-
-            // map each daemon with the recording memory status
-            if (daemon_ips !== "") {
-                daemon_list = daemon_ips.substring(1, daemon_ips.length - 1).split(',');
-                free_list = document.data.daemon_free.value.substring(1, document.data.daemon_free.value.length - 1).split(',');
-                allocated_list = document.data.daemon_allocated.value.substring(1, document.data.daemon_allocated.value.length - 1).split(',');
-                mapped_list = document.data.daemon_mapped.value.substring(1, document.data.daemon_mapped.value.length - 1).split(',');
-                for (var i = 0; i < daemon_list.length; i++){
-                    daemon_map.set(daemon_list[i], {free: free_list[i], allocated: allocated_list[i], mapped: mapped_list[i]});
-                }
-            }
 
 
             //get the union of bd and daemon
@@ -88,24 +79,61 @@
             }
             dev_ips = Array.from(dev_ip_set);
             dev_ips.sort();
-            render();
+
         }
+
+        // map each daemon with the recording memory status
+        if (daemon_ips !== "") {
+            daemon_list = daemon_ips.substring(1, daemon_ips.length - 1).split(',');
+            free_list = document.data.daemon_free.value.substring(1, document.data.daemon_free.value.length - 1).split(',');
+            allocated_list = document.data.daemon_allocated.value.substring(1, document.data.daemon_allocated.value.length - 1).split(',');
+            mapped_list = document.data.daemon_mapped.value.substring(1, document.data.daemon_mapped.value.length - 1).split(',');
+            for (var i = 0; i < daemon_list.length; i++) {
+                daemon_map.set(daemon_list[i], { free: free_list[i], allocated: allocated_list[i], mapped: mapped_list[i] });
+            }
+        }
+
+        if (bd_ips !== "") {
+            bd_list = bd_ips.substring(1, bd_ips.length - 1).split(',');
+            pagein_throughput_list = document.data.bd_pagein_throughput.value.substring(1, document.data.bd_pagein_throughput.value.length - 1).split(',');
+            pageout_throughput_list = document.data.bd_pageout_throughput.value.substring(1, document.data.bd_pageout_throughput.value.length - 1).split(',');
+            pagein_latency_list = document.data.bd_pagein_latency.value.substring(1, document.data.bd_pagein_latency.value.length - 1).split(',');
+            pageout_latency_list = document.data.bd_pageout_latency.value.substring(1, document.data.bd_pageout_latency.value.length - 1).split(',');
+            for (var i = 0; i < bd_list.length; i++) {
+                bd_map.set(bd_list[i], {
+                    pagein_throughput: pagein_throughput_list[i],
+                    pageout_throughput: pageout_throughput_list[i],
+                    pagein_latency: pagein_latency_list[i],
+                    pageout_latency: pageout_latency_list[i]
+                });
+            }
+        }
+
+        render();
     }
 
     setInterval(update_devices(), 5000);
 
     function draw_bd_block(i) {
         if (bd_set.has(dev_ips[i])) {
-            ctx.fillStyle = "#EE0000";
+            ctx.fillStyle = "brown";
+            ctx.font = (fontsize / 2) + "px Arial";
+            ctx.fillRect(left, blockheight * (2 * i + 1), blockwidth, blockheight);
+            ctx.fillStyle = "blue";
+            ctx.fillText("throughput: " + bd_map.get(dev_ips[i]).pagein_throughput + "/" + bd_map.get(dev_ips[i]).pageout_throughput,
+                left + blockwidth / 2, blockheight * (2 * i + 1) + fontsize / 2);
+            ctx.fillText("latency: " + bd_map.get(dev_ips[i]).pagein_latency + "/" + bd_map.get(dev_ips[i]).pageout_latency,
+                left + blockwidth / 2, blockheight * (2 * i + 2) - fontsize / 4);
         }
         else {
             ctx.fillStyle = "#666666";
+            ctx.fillRect(left, blockheight * (2 * i + 1), blockwidth, blockheight);
         }
-        ctx.fillRect(left, blockheight * (2 * i + 1), blockwidth, blockheight);
+
         ctx.fillStyle = "#000000";
         ctx.textAlign = "center";
         ctx.font = fontsize + "px Arial";
-        ctx.fillText(dev_ips[i], left + blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 2);
+        ctx.fillText(dev_ips[i], left + blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 3);
     }
 
     function draw_daemon_block(i) {
@@ -117,19 +145,19 @@
             ctx.fillStyle = "green";
             ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth, blockheight);
             ctx.fillStyle = "yellow";
-            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * (allocated + mapped) / total_mem , blockheight);
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * (allocated + mapped) / total_mem, blockheight);
             ctx.fillStyle = "orange";
-            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * mapped / total_mem , blockheight);
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * mapped / total_mem, blockheight);
         }
         else {
             ctx.fillStyle = "#666666";
             ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth, blockheight);
         }
-        
+
         ctx.fillStyle = "#000000";
         ctx.textAlign = "center";
         ctx.font = fontsize + "px Arial";
-        ctx.fillText(dev_ips[i], right - blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 2);
+        ctx.fillText(dev_ips[i], right - blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 3);
     }
 
     function link(i, j) {
