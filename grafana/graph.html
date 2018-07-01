@@ -1,4 +1,4 @@
-<canvas id="myCanvas" width="200" height="100" style="border:1px solid #000000;">
+<canvas id="myCanvas">
 </canvas>
 <form name="data">
     <input type="hidden" name="device_num" value=$device_num />
@@ -29,12 +29,14 @@
     var left = canvas.width / 9;
     var right = canvas.width * 8 / 9;
     var blockwidth = canvas.width / 5;
+    var top = 1;
+    var bottom = 0.3
     var blockheight, fontsize;
 
     function adjust_graph_height() {
         canvas.height = canvas.width / 10 * (2 * Math.sqrt(num) + 1);
-        blockheight = canvas.height / (2 * num + 1);
-        fontsize = canvas.height / (2 * num + 1) / 3;
+        blockheight = canvas.height / (2 * num + bottom);
+        fontsize = blockheight / 4;
     }
 
     function update_devices() {
@@ -117,23 +119,23 @@
     function draw_bd_block(i) {
         if (bd_set.has(dev_ips[i])) {
             ctx.fillStyle = "brown";
-            ctx.font = (fontsize / 2) + "px Arial";
-            ctx.fillRect(left, blockheight * (2 * i + 1), blockwidth, blockheight);
+            ctx.font = fontsize + "px Arial";
+            ctx.fillRect(left, blockheight * (2 * i + top), blockwidth, blockheight);
             ctx.fillStyle = "blue";
             ctx.fillText("throughput: " + bd_map.get(dev_ips[i]).pagein_throughput + "/" + bd_map.get(dev_ips[i]).pageout_throughput,
-                left + blockwidth / 2, blockheight * (2 * i + 1) + fontsize / 2);
+                left + blockwidth / 2, blockheight * (2 * i + top) + fontsize / 2);
             ctx.fillText("latency: " + bd_map.get(dev_ips[i]).pagein_latency + "/" + bd_map.get(dev_ips[i]).pageout_latency,
-                left + blockwidth / 2, blockheight * (2 * i + 2) - fontsize / 4);
+                left + blockwidth / 2, blockheight * (2 * i + top) - fontsize / 4);
         }
         else {
             ctx.fillStyle = "#666666";
-            ctx.fillRect(left, blockheight * (2 * i + 1), blockwidth, blockheight);
+            ctx.fillRect(left, blockheight * (2 * i + top), blockwidth, blockheight);
         }
 
         ctx.fillStyle = "#000000";
         ctx.textAlign = "center";
         ctx.font = fontsize + "px Arial";
-        ctx.fillText(dev_ips[i], left + blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 3);
+        ctx.fillText(dev_ips[i], left + blockwidth / 2, blockheight * (2 * i + top) + blockheight / 2 + fontsize / 3);
     }
 
     function draw_daemon_block(i) {
@@ -143,49 +145,57 @@
             var mapped = parseInt(daemon_map.get(dev_ips[i]).mapped);
             var total_mem = free + allocated + mapped;
             ctx.fillStyle = "green";
-            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth, blockheight);
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + top), blockwidth, blockheight);
             ctx.fillStyle = "yellow";
-            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * (allocated + mapped) / total_mem, blockheight);
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + top), blockwidth * (allocated + mapped) / total_mem, blockheight);
             ctx.fillStyle = "orange";
-            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth * mapped / total_mem, blockheight);
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + top), blockwidth * mapped / total_mem, blockheight);
         }
         else {
             ctx.fillStyle = "#666666";
-            ctx.fillRect(right - blockwidth, blockheight * (2 * i + 1), blockwidth, blockheight);
+            ctx.fillRect(right - blockwidth, blockheight * (2 * i + top), blockwidth, blockheight);
         }
 
         ctx.fillStyle = "#000000";
         ctx.textAlign = "center";
         ctx.font = fontsize + "px Arial";
-        ctx.fillText(dev_ips[i], right - blockwidth / 2, blockheight * (2 * i + 1) + blockheight / 2 + fontsize / 3);
+        ctx.fillText(dev_ips[i], right - blockwidth / 2, blockheight * (2 * i + top) + blockheight / 2 + fontsize / 3);
     }
 
     function link(i, j) {
         ctx.beginPath();
-        ctx.moveTo(left + blockwidth, blockheight * (2 * i + 1) + blockheight / 2);
+        ctx.moveTo(left + blockwidth, blockheight * (2 * top + 1) + blockheight / 2);
         var lineWidth = 0;
-        var throughput = 40;
-        if (throughput < 50) {
+        var throughput = 0;
+        var latency = 0;
+        if (bd_set.has(dev_ips[i])) {
+            throughput = bd_map.get(dev_ips[i]).pagein_throughput + bd_map.get(dev_ips[i]).pageout_throughput;
+            latency = bd_map.get(dev_ips[i]).pagein_latency + bd_map.get(dev_ips[i]).pageout_latency; 
+            if (bd_map.get(dev_ips[i]).pagein_latency !== 0 && bd_map.get(dev_ips[i]).pageout_latency !== 0){
+                latency /= 2;
+            }
+        }
+        if (throughput < 100) {
             lineWidth = 2;
         }
-        else if (throughput >= 50 && throughput < 75) {
+        else if (throughput >= 100 && throughput < 500) {
             lineWidth = 5;
         }
-        else if (throuput >= 75 && throughput < 100) {
+        else if (throughput >= 500 && throughput < 3000) {
             lineWidth = 8;
         }
         else {
             lineWidth = 10;
         }
-        var latency = 80;
+        
         var style = "";
-        if (latency < 30) {
+        if (latency < 10000) {
             style = "green";
         }
-        else if (latency >= 30 && latency < 60) {
+        else if (latency >= 10000 && latency < 30000) {
             style = "yellow";
         }
-        else if (latency > 60 && latency < 80) {
+        else if (latency > 30000 && latency < 100000) {
             style = "orange"
         }
         else {
@@ -193,7 +203,7 @@
         }
         ctx.strokeStyle = style;
         ctx.lineWidth = lineWidth;
-        ctx.lineTo(right - blockwidth, blockheight * (2 * j + 1) + blockheight / 2);
+        ctx.lineTo(right - blockwidth, blockheight * (2 * j + top) + blockheight / 2);
         ctx.stroke();
     }
 

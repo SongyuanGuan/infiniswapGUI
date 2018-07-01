@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:4019",
+        "$$hashKey": "object:864",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1529908375044,
+  "iteration": 1530419595849,
   "links": [
     {
       "icon": "external link",
@@ -210,12 +210,12 @@
       "id": 4,
       "legend": {
         "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
+        "current": true,
+        "max": true,
+        "min": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -259,8 +259,8 @@
           "format": "short",
           "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "max": "100000",
+          "min": "0",
           "show": true
         },
         {
@@ -295,12 +295,12 @@
       "id": 5,
       "legend": {
         "avg": false,
-        "current": false,
-        "max": false,
-        "min": false,
+        "current": true,
+        "max": true,
+        "min": true,
         "show": true,
         "total": false,
-        "values": false
+        "values": true
       },
       "lines": true,
       "linewidth": 1,
@@ -344,8 +344,8 @@
           "format": "short",
           "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
+          "max": "100000",
+          "min": "0",
           "show": true
         },
         {
@@ -405,7 +405,6 @@
       ],
       "targets": [
         {
-          "$$hashKey": "object:4149",
           "alias": "",
           "format": "table",
           "rawSql": "SELECT FROM_UNIXTIME(UNIX_TIMESTAMP(time)), total_IO, remote_IO, pagein_throughput as IN_TP, pageout_throughput as OUT_TP, pagein_latency as IN_latency, pageout_latency as OUT_latency from block_device;",
@@ -415,20 +414,6 @@
       "title": "",
       "transform": "table",
       "type": "table"
-    },
-    {
-      "content": "<a href=\"http://127.0.0.1:3000/d/000000003/infiniswap?refresh=10s&orgId=1\"> Back To Main Page </a>",
-      "gridPos": {
-        "h": 2,
-        "w": 3,
-        "x": 0,
-        "y": 27
-      },
-      "id": 7,
-      "links": [],
-      "mode": "html",
-      "title": "",
-      "type": "text"
     }
   ],
   "refresh": "5s",
@@ -486,7 +471,7 @@
     ]
   },
   "time": {
-    "from": "now-5m",
+    "from": "now-15m",
     "to": "now"
   },
   "timepicker": {
@@ -517,5 +502,5 @@
   "timezone": "",
   "title": "block_device",
   "uid": "DxYJ2HSiz",
-  "version": 16
+  "version": 18
 }
