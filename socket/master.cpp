@@ -93,7 +93,7 @@ static int server_init()
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = inet_addr("128.110.96.95");
+    addr.sin_addr.s_addr = inet_addr(server_ip);
     addr.sin_port = htons(hostport);
     bind(sock, (struct sockaddr *)&addr, sizeof(addr));
     socklen_t length = sizeof(addr);

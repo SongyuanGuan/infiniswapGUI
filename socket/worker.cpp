@@ -32,7 +32,7 @@ void send_to_server(request_msg &msg)
     }
 
     server.sin_family = AF_INET;
-    server.sin_addr.s_addr = inet_addr("128.110.96.95");
+    server.sin_addr.s_addr = inet_addr(server_ip);
     server.sin_port = htons(hostport);
     if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
     {
