@@ -236,7 +236,7 @@ static void process_request(const request_msg &msg)
         for (int i = 0; i < MAX_FREE_MEM_GB; i++)
         {
             // check if the chunk has been mapped
-            if (msg.mapping.mem_status[i] == 2)
+            if (msg.mapping.mem_status[i] == '2')
             {
                 char str3[200];
                 sprintf(str3,
