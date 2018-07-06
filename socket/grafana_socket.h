@@ -41,6 +41,10 @@ struct IO_para{
     int pagein_speed;
     int pageout_latency;
     int pagein_latency;
+    int high_pageout_latency;
+    int low_pageout_latency;
+    int high_pagein_latency;
+    int low_pagein_latency;
     int total_IO;
     int remote_IO;
 };
@@ -51,6 +55,10 @@ IO_para operator+(const IO_para & a, const IO_para & b){
     result.pagein_speed = a.pagein_speed + b.pagein_speed;
     result.pageout_latency = a.pageout_latency + b.pageout_latency;
     result.pagein_latency = a.pagein_latency + b.pagein_latency;
+    result.high_pageout_latency = a.high_pageout_latency + b.high_pageout_latency;
+    result.high_pagein_latency = a.high_pagein_latency + b.high_pagein_latency;
+    result.low_pageout_latency = a.low_pageout_latency + b.low_pageout_latency;
+    result.low_pagein_latency = a.low_pagein_latency + b.low_pagein_latency;
     result.total_IO = a.total_IO + b.total_IO;
     result.remote_IO = a.remote_IO + b.remote_IO;
     return result;
@@ -60,6 +68,10 @@ IO_para operator/(const IO_para & a,int  b){
     IO_para result = a;
     result.pageout_latency = a.pageout_latency / b;
     result.pagein_latency = a.pagein_latency / b;
+    result.high_pageout_latency = a.high_pageout_latency / b;
+    result.high_pagein_latency = a.high_pagein_latency / b;
+    result.low_pageout_latency = a.low_pageout_latency / b;
+    result.low_pagein_latency = a.low_pagein_latency / b;
     result.total_IO = a.total_IO / b;
     result.remote_IO = a.remote_IO / b;
     result.pagein_speed = a.pagein_speed / b;

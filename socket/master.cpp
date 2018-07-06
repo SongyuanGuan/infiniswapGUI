@@ -212,8 +212,8 @@ static void process_request(const request_msg &msg)
     {
         char str[500];
         sprintf(str,
-                "INSERT INTO block_device (dev_ip, total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, %d, %d, NOW())",
-                msg.ip, msg.IO.total_IO, msg.IO.remote_IO, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency);
+                "INSERT INTO block_device (dev_ip, total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, high_pagein_latency, low_pagein_latency, high_pageout_latency, low_pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, NOW())",
+                msg.ip, msg.IO.total_IO, msg.IO.remote_IO, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency, msg.IO.high_pagein_latency, msg.IO.low_pagein_latency, msg.IO.high_pageout_latency, msg.IO.low_pageout_latency);
         cout << str << endl;
         put_data_into_mysql(str);
     }
@@ -238,12 +238,12 @@ static void process_request(const request_msg &msg)
             // check if the chunk has been mapped
             if (msg.mapping.mem_status[i] == 2)
             {
-                char str2[200];
-                sprintf(str2,
+                char str3[200];
+                sprintf(str3,
                         "INSERT INTO daemon_mapping (dev_ip, remote_ip, local_chunk, remote_chunk, time) VALUES ('%s', '%s', %d, %d, NOW())",
                         msg.ip, msg.mapping.map_infos[i].remote_ip, i + 1, msg.mapping.map_infos[i].remote_chunk_num + 1);
-                cout << str2 << endl;
-                put_data_into_mysql(str2);
+                cout << str3 << endl;
+                put_data_into_mysql(str3);
             }
         }
     }
