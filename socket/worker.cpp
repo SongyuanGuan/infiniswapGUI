@@ -28,11 +28,13 @@ class latency_t
   public:
     vector<unsigned> read;
     vector<unsigned> write;
+
     void sort()
     {
         std::sort(read.begin(), read.end());
         std::sort(write.begin(), write.end());
     }
+
     void insert(unsigned latency, bool is_write)
     {
         if (is_write)
@@ -43,6 +45,11 @@ class latency_t
         {
             read.push_back(latency);
         }
+    }
+
+    void clear(){
+        read.resize(0);
+        write.resize(0);
     }
 };
 
@@ -55,9 +62,11 @@ void read_file(char *filename, unsigned size, bool is_write)
 
     for (int i = 0; i < size; i++)
     {
-        unsigned latency;
-        ifile >> latency;
-        all_latency.insert(latency, is_write);
+        string s_latency;
+        ifile >> s_latency;
+        size_t pos = s_latency.find_first_not_of('\0');
+        string ss_latency = s_latency.substr(pos, s_latency.size());
+        all_latency.insert(atoi(ss_latency.c_str()), is_write);
     }
 
     ifile.close();
