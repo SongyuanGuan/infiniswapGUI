@@ -35,6 +35,8 @@ class compare_by_time
     }
 };
 
+// each client's request is put into a priority queue sorted by time
+// select infos and delete the old ones when necessary
 class all_info
 {
   public:
@@ -76,6 +78,7 @@ class all_info
 MYSQL *conn;
 all_info infos;
 
+// start the server
 static int server_init()
 {
     int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -107,6 +110,7 @@ static int server_init()
     return sock;
 }
 
+// do mysql instructions
 static void put_data_into_mysql(char *str)
 {
     db_lock.lock();
@@ -115,16 +119,18 @@ static void put_data_into_mysql(char *str)
 
     if (!res)
     {
-        printf("Inserted %lu rows", (unsigned long)mysql_affected_rows(conn));
+        printf("Affected %lu rows", (unsigned long)mysql_affected_rows(conn));
     }
     else
     {
-        fprintf(stderr, "Insert error %d: %s\n", mysql_errno(conn),
+        fprintf(stderr, "Mysql error %d: %s\n", mysql_errno(conn),
                 mysql_error(conn));
         exit(1);
     }
 }
 
+// every $process_interval$ seconds, average the data from each request
+// and put the data into mysql
 static void process_data()
 {
     while (true)
@@ -188,7 +194,7 @@ static void process_data()
         sprintf(timestamp, "%d-%d-%d %d:%d:%d", 1900 + my_tm->tm_year,
                 my_tm->tm_mon, my_tm->tm_mday, my_tm->tm_hour, my_tm->tm_min, my_tm->tm_sec);
 
-        cout << msgs.size() << endl;
+        //cout << msgs.size() << endl;
         // put the data into mysql
         char str[500];
         sprintf(str,
@@ -203,10 +209,9 @@ static void process_data()
     }
 }
 
+// process a client request
 static void process_request(const request_msg &msg)
 {
-    cout << "ip is " << msg.ip << endl;
-    //cout << "time is " << msg.time << " " << ctime(&msg.time) << endl;
     infos.add_info(msg);
     if (msg.bd_on)
     {
@@ -249,6 +254,8 @@ static void process_request(const request_msg &msg)
     }
 }
 
+// check whether the request is in the valid form
+// currently only do very simple check
 static bool check_request(const request_msg &msg)
 {
     //check ip
@@ -275,8 +282,6 @@ static void server_listen(int sock)
     while (true)
     {
         time_t t = time(0);
-        cout << "time: " << t << " " << ctime(&t) << endl;
-        cout << "ready to accept message\n";
 
         int msgsock = accept(sock, (struct sockaddr *)0, (socklen_t *)0);
         if (msgsock == -1)
@@ -291,6 +296,7 @@ static void server_listen(int sock)
     }
 }
 
+// build mysql connection
 static void connect_to_mysql()
 {
     conn = mysql_init(NULL);
@@ -314,6 +320,7 @@ static void connect_to_mysql()
     }
 }
 
+// a separate thread that clears the database every $DELETE_INTERVAL$ seconds
 static void clear_db()
 {
     while (true)
