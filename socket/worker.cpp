@@ -12,6 +12,7 @@
 #include <cstring>
 #include <vector>
 #include <algorithm>
+#include <cmath>
 #include "grafana_socket.h"
 
 using namespace std;
@@ -70,19 +71,20 @@ void read_file(char *filename, unsigned size, bool is_write)
     }
 
     ifile.close();
+    remove(filename);
 }
 
-//0 <= range < 1
+//0 < range <= 1
 unsigned calculate_proportion(float range, bool is_write)
 {
     if (is_write)
     {
-        int pos = (int)(all_latency.write.size() * range);
+        int pos = (int)ceil(all_latency.write.size() * range) - 1;
         return all_latency.write[pos];
     }
     else
     {
-        int pos = (int)(all_latency.read.size() * range);
+        int pos = (int)ceil(all_latency.read.size() * range) - 1;
         return all_latency.read[pos];
     }
 }
