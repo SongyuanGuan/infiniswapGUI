@@ -6,10 +6,11 @@
 
 const int hostport = 10216;
 const char server_ip[] = "128.110.96.8";
-const int send_interval = 2; // the interval (seconds) a client sending message to server
+const int send_interval = 1; // the interval (seconds) a client sending message to server
 const int process_interval = 10; // the interval (seconds) server process data
 const int TOTALRAM = 64; // 64GB
 const int MAX_FREE_MEM_GB = 32;
+const int max_portal_num = 10; // how many daemon can a block device connects to at most
 
 struct ram_t{
     int mapped;
@@ -85,10 +86,17 @@ struct map_info{
 };
 
 struct mapping_relation{
-    char mem_status[MAX_FREE_MEM_GB + 1]; // 0 for free, 1 for allocated but not mapped, 2 for mapped, 3 for used by local program
+    char mem_status[MAX_FREE_MEM_GB + 1]; // 0 for free, 1 for allocated but not mapped, 2 for mapped
     map_info map_infos[MAX_FREE_MEM_GB];
 };
 
+struct bd_mapping{
+    char daemon_ip[16];
+    int pagein_speed;
+    int pageout_speed;
+    int pagein_latency;
+    int pageout_latency;
+};
 
 struct request_msg{
     char ip[16];
@@ -99,6 +107,8 @@ struct request_msg{
     ram_t ram;
     IO_para IO;
     mapping_relation mapping;
+    bd_mapping bd_maps[max_portal_num];
+    int bd_portal_num; // the number of daemon the bd has in its portal.list file
 };
 
 #endif

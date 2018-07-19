@@ -215,12 +215,22 @@ static void process_request(const request_msg &msg)
     infos.add_info(msg);
     if (msg.bd_on)
     {
-        char str[500];
-        sprintf(str,
+        char str1[500];
+        sprintf(str1,
                 "INSERT INTO block_device (dev_ip, total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, high_pagein_latency, low_pagein_latency, high_pageout_latency, low_pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, NOW())",
                 msg.ip, msg.IO.total_IO, msg.IO.remote_IO, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency, msg.IO.high_pagein_latency, msg.IO.low_pagein_latency, msg.IO.high_pageout_latency, msg.IO.low_pageout_latency);
-        cout << str << endl;
-        put_data_into_mysql(str);
+        cout << str1 << endl;
+        put_data_into_mysql(str1);
+
+        for (int i = 0; i < msg.bd_portal_num; i++)
+        {
+            char str2[500];
+            sprintf(str2,
+                    "INSERT INTO bd_mapping (dev_ip, remote_ip, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time) VALUES ('%s', '%s', %d, %d, %d, %d, NOW())",
+                    msg.ip, msg.bd_maps[i].daemon_ip, msg.bd_maps[i].pagein_speed, msg.bd_maps[i].pageout_speed, msg.bd_maps[i].pagein_latency, msg.bd_maps[i].pageout_latency);
+            cout << str2 << endl;
+            put_data_into_mysql(str2);
+        }
     }
     if (msg.daemon_on)
     {

@@ -19,44 +19,92 @@ using namespace std;
 
 const char *ip = "192.168.0.57";
 const char *swap_area = "/dev/infiniswap0";
+const char *portal_file_addr = "/users/songyuan/infiniswap/portal.list";
 int last_version = -1;
 char *write_latency_files[] = {"/tmp/bd_write_latency_1", "/tmp/bd_write_latency_2", "/tmp/bd_write_latency_3"};
 char *read_latency_files[] = {"/tmp/bd_read_latency_1", "/tmp/bd_read_latency_2", "/tmp/bd_read_latency_3"};
 char *bd_info_files[] = {"/tmp/bd_info_1", "/tmp/bd_info_2", "/tmp/bd_info_3"};
 
+vector<string> portal_ips;
+bool bd_on = false; // record the block device status (reread the portal.list when bd restarts)
+
 class latency_t
 {
   public:
-    vector<unsigned> read;
-    vector<unsigned> write;
+    vector<unsigned> read; // read latency data
+    vector<unsigned> write; // write latency data
+    vector<vector<unsigned> > sep_read_data; // read latency data for each daemon this block device is mapping to
+    vector<vector<unsigned> > sep_write_data; // write ------
+
+    latency_t()
+    {
+        sep_read_data.resize(max_portal_num, vector<unsigned>());
+        sep_write_data.resize(max_portal_num, vector<unsigned>());
+    }
 
     void sort()
     {
         std::sort(read.begin(), read.end());
         std::sort(write.begin(), write.end());
+        for (int i = 0; i < max_portal_num; i++)
+        {
+            std::sort(sep_read_data[i].begin(), sep_read_data[i].end());
+            std::sort(sep_read_data[i].begin(), sep_read_data[i].end());
+        }
     }
 
-    void insert(unsigned latency, bool is_write)
+    // index: the cb_index in portal.list
+    void insert(unsigned latency, int index, bool is_write)
     {
         if (is_write)
         {
             write.push_back(latency);
+            sep_write_data[index].push_back(latency);
         }
         else
         {
             read.push_back(latency);
+            sep_read_data[index].push_back(latency);
         }
     }
 
-    void clear(){
+    void clear()
+    {
         read.resize(0);
         write.resize(0);
+
+        for (int i = 0; i < max_portal_num; i++)
+        {
+            sep_read_data[i].resize(0);
+            sep_write_data[i].resize(0);
+        }
     }
+
+    
 };
 
 latency_t all_latency;
 
-void read_file(char *filename, unsigned size, bool is_write)
+// read the portal.list file and 
+void parse_portal()
+{
+    portal_ips.resize(0);
+
+    ifstream ifile;
+    ifile.open(portal_file_addr);
+    int portal_num;
+    ifile >> portal_num;
+    for (int i = 0; i < portal_num; i++)
+    {
+        string portal;
+        ifile >> portal; //portal is in the form of "ip:port"
+        string ip = portal.substr(0, portal.find_first_of(':')); // get the ip address
+        portal_ips.push_back(ip);
+    }
+    ifile.close();
+}
+
+void read_latency_file(char *filename, unsigned size, bool is_write)
 {
     ifstream ifile;
     ifile.open(filename);
@@ -64,10 +112,11 @@ void read_file(char *filename, unsigned size, bool is_write)
     for (int i = 0; i < size; i++)
     {
         string s_latency;
-        ifile >> s_latency;
+        int index;
+        ifile >> s_latency >> index;
         size_t pos = s_latency.find_first_not_of('\0');
         string ss_latency = s_latency.substr(pos, s_latency.size());
-        all_latency.insert(atoi(ss_latency.c_str()), is_write);
+        all_latency.insert(atoi(ss_latency.c_str()), index, is_write);
     }
 
     ifile.close();
@@ -79,11 +128,19 @@ unsigned calculate_proportion(float range, bool is_write)
 {
     if (is_write)
     {
+        if (all_latency.write.size() == 0)
+        {
+            return 0;
+        }
         int pos = (int)ceil(all_latency.write.size() * range) - 1;
         return all_latency.write[pos];
     }
     else
     {
+        if (all_latency.read.size() == 0)
+        {
+            return 0;
+        }
         int pos = (int)ceil(all_latency.read.size() * range) - 1;
         return all_latency.read[pos];
     }
@@ -103,8 +160,8 @@ void read_tp_and_latency(request_msg &msg)
     ifile >> msg.IO.pagein_speed >> msg.IO.pageout_speed >> msg.IO.total_IO >> msg.IO.remote_IO;
     ifile.close();
 
-    read_file(read_latency_files[version], msg.IO.pagein_speed, false);
-    read_file(write_latency_files[version], msg.IO.pageout_speed, true);
+    read_latency_file(read_latency_files[version], msg.IO.pagein_speed, false);
+    read_latency_file(write_latency_files[version], msg.IO.pageout_speed, true);
 
     all_latency.sort();
 
@@ -115,6 +172,22 @@ void read_tp_and_latency(request_msg &msg)
     msg.IO.pageout_latency = calculate_proportion(0.5, true);
     msg.IO.high_pageout_latency = calculate_proportion(0.9, true);
     msg.IO.low_pageout_latency = calculate_proportion(0.1, true);
+
+    // get the medium latency for each daemon the block device is mapping to
+    msg.bd_portal_num = portal_ips.size();
+    for (int i = 0; i < msg.bd_portal_num; i++){
+        strcpy(msg.bd_maps[i].daemon_ip, portal_ips[i].c_str());
+        msg.bd_maps[i].pagein_speed = all_latency.sep_read_data[i].size();
+        if (msg.bd_maps[i].pagein_speed){
+            msg.bd_maps[i].pagein_latency = all_latency.sep_read_data[i][msg.bd_maps[i].pagein_speed / 2];
+        }
+        msg.bd_maps[i].pageout_speed = all_latency.sep_write_data[i].size();
+        if (msg.bd_maps[i].pageout_speed){
+            msg.bd_maps[i].pageout_latency = all_latency.sep_write_data[i][msg.bd_maps[i].pageout_speed / 2];
+        }
+    }
+
+    all_latency.clear();
 }
 
 void send_to_server(request_msg &msg)
@@ -157,8 +230,13 @@ void read_bd(request_msg &msg)
     ifile.close();
     if (msg.bd_on)
     {
+        // renew the portal ips when the bd restarts
+        if (!bd_on){
+            parse_portal();
+        }
         read_tp_and_latency(msg);
     }
+    bd_on = msg.bd_on;
 }
 
 void read_daemon(request_msg &msg)
