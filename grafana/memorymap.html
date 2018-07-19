@@ -10,7 +10,7 @@
     var mem_status = document.data.mem_status.value;
     var chunk_mapping = document.data.chunk_mapping.value.substring(1, document.data.chunk_mapping.value.length - 1).split(',');
 
-
+    // map from chunk number to the mapped ip address
     var mapped_chunks = new Object();
  
     function read_mapping() {
@@ -80,6 +80,7 @@
 
     drawMemBlocks();
 
+    // read and refresh (if changed) memory status every 5 seconds
     setInterval(function () {
         var new_mem_status = document.data.mem_status.value;
         if (new_mem_status !== mem_status) {

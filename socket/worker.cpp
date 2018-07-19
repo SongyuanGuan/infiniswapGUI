@@ -19,7 +19,7 @@ using namespace std;
 
 const char *ip = "192.168.0.57";
 const char *swap_area = "/dev/infiniswap0";
-const char *portal_file_addr = "/users/songyuan/infiniswap/portal.list";
+const char *portal_file_addr = "/users/songyuan/infiniswap/setup/portal.list";
 int last_version = -1;
 char *write_latency_files[] = {"/tmp/bd_write_latency_1", "/tmp/bd_write_latency_2", "/tmp/bd_write_latency_3"};
 char *read_latency_files[] = {"/tmp/bd_read_latency_1", "/tmp/bd_read_latency_2", "/tmp/bd_read_latency_3"};
