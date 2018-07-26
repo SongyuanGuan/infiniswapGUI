@@ -270,7 +270,7 @@ void read_daemon(request_msg &msg)
 
 int main(int argc, char **argv)
 {
-    scanf("%s", ip);
+    strcpy(ip, argv[1]);
     while (true)
     {
         request_msg msg;
