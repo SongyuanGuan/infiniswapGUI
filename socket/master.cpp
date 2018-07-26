@@ -20,7 +20,7 @@ using namespace std;
 
 const int device_num = 5; // (max) total number of divices
 const int delay_time = 5; // process data before delay_time
-const string db_tables[5] = {"general_info", "block_device", "daemon", "daemon_mem", "daemon_mapping", "bd_mapping"};
+const string db_tables[] = {"general_info", "block_device", "daemon", "daemon_mem", "daemon_mapping", "bd_mapping"};
 const int DELETE_INTERVAL = 300;
 
 mutex db_lock;
