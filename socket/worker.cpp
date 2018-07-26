@@ -17,6 +17,7 @@
 
 using namespace std;
 
+char ip[16];
 const char *swap_area = "/dev/infiniswap0";
 const char *portal_file_addr = "/users/songyuan/infiniswap/setup/portal.list";
 int last_version = -1;
@@ -269,7 +270,6 @@ void read_daemon(request_msg &msg)
 
 int main(int argc, char **argv)
 {
-    char ip[16];
     scanf("%s", ip);
     while (true)
     {

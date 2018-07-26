@@ -4,7 +4,7 @@
 #include <ctime>
 #include <string>
 
-const int hostport = 10216;
+const int hostport = 10219;
 const char server_ip[] = "128.110.96.8";
 const int send_interval = 1; // the interval (seconds) a client sending message to server
 const int process_interval = 10; // the interval (seconds) server process data
