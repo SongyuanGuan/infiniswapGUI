@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:864",
+        "$$hashKey": "object:90",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1530419595849,
+  "iteration": 1532104105442,
   "links": [
     {
       "icon": "external link",
@@ -194,23 +194,31 @@
     },
     {
       "aliasColors": {
-        "page in latency": "#e24d42"
+        "(10%) page in latency": "#eab839",
+        "(90%) page in latency": "#bf1b00",
+        "10% page in latency": "#e5ac0e",
+        "3% page in latency": "#e5ac0e",
+        "90% page in latency": "#bf1b00",
+        "97% page in latency": "#bf1b00",
+        "page in latency": "#ef843c"
       },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "Infiniswap",
-      "fill": 1,
+      "fill": 3,
       "gridPos": {
-        "h": 9,
+        "h": 15,
         "w": 12,
         "x": 0,
         "y": 9
       },
       "id": 4,
       "legend": {
-        "avg": false,
+        "avg": true,
         "current": true,
+        "hideEmpty": false,
+        "hideZero": false,
         "max": true,
         "min": true,
         "show": true,
@@ -235,12 +243,24 @@
           "format": "time_series",
           "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pagein_latency as value,\n  \"page in latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
           "refId": "A"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  high_pagein_latency as value,\n  \"(90%) page in latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n\n",
+          "refId": "B"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  low_pagein_latency as value,\n  \"(10%) page in latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
+          "refId": "C"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page In Latency (nanosecond)",
+      "title": "Page In Latency (microsecond)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -259,7 +279,7 @@
           "format": "short",
           "label": null,
           "logBase": 1,
-          "max": "100000",
+          "max": "100",
           "min": "0",
           "show": true
         },
@@ -279,22 +299,26 @@
     },
     {
       "aliasColors": {
-        "page out latency": "#e24d42"
+        "(10%) page out latency": "#eab839",
+        "(3%) page out latency": "#e5ac0e",
+        "(90%) page out latency": "#bf1b00",
+        "(97%) page out latency": "#bf1b00",
+        "page out latency": "#ef843c"
       },
       "bars": false,
       "dashLength": 10,
       "dashes": false,
       "datasource": "Infiniswap",
-      "fill": 1,
+      "fill": 3,
       "gridPos": {
-        "h": 9,
+        "h": 15,
         "w": 12,
         "x": 12,
         "y": 9
       },
       "id": 5,
       "legend": {
-        "avg": false,
+        "avg": true,
         "current": true,
         "max": true,
         "min": true,
@@ -320,12 +344,24 @@
           "format": "time_series",
           "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  pageout_latency as value,\n  \"page out latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
           "refId": "A"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  high_pageout_latency as value,\n  \"(90%) page out latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n",
+          "refId": "B"
+        },
+        {
+          "alias": "",
+          "format": "time_series",
+          "rawSql": "SELECT\n  UNIX_TIMESTAMP(time) as time_sec,\n  low_pageout_latency as value,\n  \"(10%) page out latency\" as metric\nFROM block_device\nWHERE $__timeFilter(time) AND dev_ip = '$device_ip'\nORDER BY time ASC\n\n",
+          "refId": "C"
         }
       ],
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Page Out Latency (nanosecond)",
+      "title": "Page Out Latency (microsecond)",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -344,7 +380,7 @@
           "format": "short",
           "label": null,
           "logBase": 1,
-          "max": "100000",
+          "max": "100",
           "min": "0",
           "show": true
         },
@@ -370,7 +406,7 @@
         "h": 9,
         "w": 24,
         "x": 0,
-        "y": 18
+        "y": 24
       },
       "id": 9,
       "links": [],
@@ -416,7 +452,7 @@
       "type": "table"
     }
   ],
-  "refresh": "5s",
+  "refresh": false,
   "schemaVersion": 16,
   "style": "dark",
   "tags": [],
@@ -434,9 +470,15 @@
         "label": null,
         "multi": false,
         "name": "device_ip",
-        "options": [],
-        "query": "select dev_ip from block_device group by dev_ip order by time desc  limit $bd_num;",
-        "refresh": 1,
+        "options": [
+          {
+            "selected": true,
+            "text": "192.168.0.56",
+            "value": "192.168.0.56"
+          }
+        ],
+        "query": "select dev_ip from block_device group by dev_ip order by time desc limit $bd_num;",
+        "refresh": 0,
         "regex": "",
         "sort": 0,
         "tagValuesQuery": "",
@@ -471,8 +513,8 @@
     ]
   },
   "time": {
-    "from": "now-15m",
-    "to": "now"
+    "from": "2018-07-19T14:40:19.000Z",
+    "to": "2018-07-19T14:50:27.000Z"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -502,5 +544,5 @@
   "timezone": "",
   "title": "block_device",
   "uid": "DxYJ2HSiz",
-  "version": 18
+  "version": 11
 }

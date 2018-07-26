@@ -63,7 +63,7 @@
                 daemon_set = new Set(daemon_ips.substring(1, daemon_ips.length - 1).split(','));
             }
             if (bd_ips !== "") {
-                bd_set = new Set(bd_ips.substring(1, daemon_ips.length - 1).split(','));
+                bd_set = new Set(bd_ips.substring(1, bd_ips.length - 1).split(','));
             }
 
             daemon_map = new Map();
@@ -90,7 +90,7 @@
             allocated_list = document.data.daemon_allocated.value.substring(1, document.data.daemon_allocated.value.length - 1).split(',');
             mapped_list = document.data.daemon_mapped.value.substring(1, document.data.daemon_mapped.value.length - 1).split(',');
             for (var i = 0; i < daemon_list.length; i++) {
-                daemon_map.set(daemon_list[i], { free: free_list[i], allocated: allocated_list[i], mapped: mapped_list[i] });
+                daemon_map.set(daemon_list[i], { free: free_list[i].split(';')[1], allocated: allocated_list[i].split(';')[1], mapped: mapped_list[i].split(';')[1] });
             }
         }
 
@@ -102,10 +102,10 @@
             pageout_latency_list = document.data.bd_pageout_latency.value.substring(1, document.data.bd_pageout_latency.value.length - 1).split(',');
             for (var i = 0; i < bd_list.length; i++) {
                 bd_map.set(bd_list[i], {
-                    pagein_throughput: pagein_throughput_list[i],
-                    pageout_throughput: pageout_throughput_list[i],
-                    pagein_latency: pagein_latency_list[i],
-                    pageout_latency: pageout_latency_list[i]
+                    pagein_throughput: pagein_throughput_list[i].split(';')[1],
+                    pageout_throughput: pageout_throughput_list[i].split(';')[1],
+                    pagein_latency: pagein_latency_list[i].split(';')[1],
+                    pageout_latency: pageout_latency_list[i].split(';')[1]
                 });
             }
         }
