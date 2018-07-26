@@ -1,8 +1,9 @@
 #!/bin/bash
+# usage: ./runserver [port]
 while :
 do
 time="`date +%Y-%m-%d,%H:%M:%S`"
 echo $time >> /tmp/time_restart
-./master
+./master $1
 sleep 1s
 done

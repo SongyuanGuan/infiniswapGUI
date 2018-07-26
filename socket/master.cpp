@@ -348,8 +348,11 @@ static void clear_db()
     }
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    if (argc > 1){
+        hostport = atoi(argv[1]);
+    }
     connect_to_mysql();
     int sock = server_init();
     thread dataprocessing_t(process_data);

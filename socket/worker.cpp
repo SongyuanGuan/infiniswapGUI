@@ -271,6 +271,10 @@ void read_daemon(request_msg &msg)
 int main(int argc, char **argv)
 {
     strcpy(ip, argv[1]);
+    // set host port number if provided
+    if (argc > 2){
+        hostport = atoi(argv[2]);
+    }
     while (true)
     {
         request_msg msg;
