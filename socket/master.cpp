@@ -358,11 +358,11 @@ void send_to_worker(control_msg &msg, char* worker_ip)
 }
 
 void receive_cmds(){
-    char ch;
+    char chd;
     while (cin >> ch){
-        if (ch == "p"){
+        if (ch == 'p'){
             control_msg msg;
-            msg.cmd = "start daemon";
+            strcpy(msg.cmd, "start daemon");
             send_to_worker(msg, 192.168.0.57);
         }
     }
