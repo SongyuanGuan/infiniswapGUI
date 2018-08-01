@@ -130,7 +130,7 @@ struct request_msg{
 
 // server send to client, include the direction from dashboard
 struct control_msg{
-    char cmd[10];
+    char cmd[20];
 };
 
 #endif
