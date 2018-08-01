@@ -2,6 +2,9 @@
 * MAC OS mysql login <br>
 /usr/local/mysql/bin/mysql -u root -p
 
+* create database
+CREATE DATABASE infiniswap
+
 * general information table <br>
 CREATE TABLE general_info( id INT NOT NULL AUTO_INCREMENT, device_num INT NOT NULL, bd_num INT NOT NULL, daemon_num INT NOT NULL, RAM_free INT NOT NULL, RAM_filter_free INT NOT NULL, RAM_allocated INT NOT NULL, RAM_mapped INT NOT NULL, time TIMESTAMP NOT NULL, pagein_throughput INT NOT NULL, pageout_throughput INT NOT NULL, pagein_latency INT NOT NULL, pageout_latency INT NOT NULL, total_IO INT NOT NULL, remote_IO INT NOT NULL, PRIMARY KEY ( id ));
 

@@ -358,7 +358,7 @@ void send_to_worker(control_msg &msg, char* worker_ip)
 }
 
 void receive_cmds(){
-    char chd;
+    char ch;
     while (cin >> ch){
         if (ch == 'p'){
             control_msg msg;
