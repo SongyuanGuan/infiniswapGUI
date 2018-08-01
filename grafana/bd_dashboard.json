@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:90",
+        "$$hashKey": "object:822",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -17,7 +17,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": 2,
-  "iteration": 1532104105442,
+  "iteration": 1532805193370,
   "links": [
     {
       "icon": "external link",
@@ -461,8 +461,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "192.168.0.56",
-          "value": "192.168.0.56"
+          "isNone": true,
+          "text": "None",
+          "value": ""
         },
         "datasource": "Infiniswap",
         "hide": 0,
@@ -472,9 +473,10 @@
         "name": "device_ip",
         "options": [
           {
+            "isNone": true,
             "selected": true,
-            "text": "192.168.0.56",
-            "value": "192.168.0.56"
+            "text": "None",
+            "value": ""
           }
         ],
         "query": "select dev_ip from block_device group by dev_ip order by time desc limit $bd_num;",
@@ -490,8 +492,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "1",
-          "value": "1"
+          "text": "0",
+          "value": "0"
         },
         "datasource": "Infiniswap",
         "hide": 2,
@@ -513,8 +515,8 @@
     ]
   },
   "time": {
-    "from": "2018-07-19T14:40:19.000Z",
-    "to": "2018-07-19T14:50:27.000Z"
+    "from": "now-15m",
+    "to": "now"
   },
   "timepicker": {
     "refresh_intervals": [
@@ -544,5 +546,5 @@
   "timezone": "",
   "title": "block_device",
   "uid": "DxYJ2HSiz",
-  "version": 11
+  "version": 12
 }

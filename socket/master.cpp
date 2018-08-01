@@ -298,7 +298,7 @@ static void connect_to_mysql()
         exit(EXIT_FAILURE);
     }
 
-    conn = mysql_real_connect(conn, "127.0.0.1", "root", "mysql", "Infiniswap",
+    conn = mysql_real_connect(conn, "127.0.0.1", "root", "mysql", "infiniswap",
                               0, NULL, 0);
 
     if (conn)
@@ -357,6 +357,17 @@ void send_to_worker(control_msg &msg, char* worker_ip)
     close(sock);
 }
 
+void receive_cmds(){
+    char ch;
+    while (cin >> ch){
+        if (ch == "p"){
+            control_msg msg;
+            msg.cmd = "start daemon";
+            send_to_worker(msg, 192.168.0.57);
+        }
+    }
+}
+
 int main(int argc, char** argv)
 {
     if (argc > 1){
@@ -372,6 +383,9 @@ int main(int argc, char** argv)
     dataprocessing_t.detach();
     thread dbclear_t(clear_db);
     dbclear_t.detach();
+    thread receive_cmd_t(receive_cmds);
+    receive_cmd_t.detach();
+
     server_listen(sock);
 
     return 0;
