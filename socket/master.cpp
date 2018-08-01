@@ -349,22 +349,23 @@ void send_to_worker(control_msg &msg, char* worker_ip)
     server.sin_port = htons(clientport);
     if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
     {
-        perror("connecting stream socket");
-        exit(1);
+        cout << "Error: connect stream socket " << worker_ip << ":" << clientport << endl;
+    }
+    else
+    {
+        send(sock, &msg, sizeof(request_msg), 0);
     }
 
-    send(sock, &msg, sizeof(request_msg), 0);
     close(sock);
 }
 
 void receive_cmds(){
-    char ch;
-    while (cin >> ch){
-        if (ch == 'p'){
-            control_msg msg;
-            strcpy(msg.cmd, "start daemon");
-            send_to_worker(msg, "192.168.0.57");
-        }
+    while (true){
+        control_msg msg;
+        strcpy(msg.cmd, "start daemon");
+        cout << "send message to worker *** \n";
+        send_to_worker(msg, "192.168.0.57");
+        sleep(5);
     }
 }
 

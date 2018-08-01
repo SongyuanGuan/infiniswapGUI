@@ -22,7 +22,7 @@
 
 int hostport = 10219; // port of master (server)
 int clientport = 10220; // port of client (worker)
-const char server_ip[] = "128.110.96.8";
+const char server_ip[] = "128.110.96.133";
 const int send_interval = 1; // the interval (seconds) a client sending message to server
 const int process_interval = 10; // the interval (seconds) server process data
 const int TOTALRAM = 64; // 64GB

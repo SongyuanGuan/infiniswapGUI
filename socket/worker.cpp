@@ -320,7 +320,8 @@ int main(int argc, char **argv)
     }
 
     int sock = worker_init();
-    worker_listen(sock);
+    thread worker_listen_t(worker_listen, sock);
+    worker_listen_t.detach();
 
     while (true)
     {
