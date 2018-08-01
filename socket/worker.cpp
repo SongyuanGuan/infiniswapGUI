@@ -1,16 +1,5 @@
-#include <iostream>
 #include <stdio.h>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <thread>
-#include <cstdlib>
-#include <unistd.h>
 #include <fstream>
-#include <cstring>
-#include <vector>
 #include <algorithm>
 #include <cmath>
 #include "grafana_socket.h"
@@ -268,13 +257,71 @@ void read_daemon(request_msg &msg)
     ifile.close();
 }
 
+// start listening to server's commands
+static int worker_init()
+{
+    int sock = socket(AF_INET, SOCK_STREAM, 0);
+
+    if (sock == -1)
+    {
+        cerr << "cannot open stream socket!\n";
+        exit(1);
+    }
+
+    int on = 1;
+    setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
+
+    //bind ip and port number to the socket
+    struct sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = inet_addr(ip);
+    addr.sin_port = htons(clientport);
+    bind(sock, (struct sockaddr *)&addr, sizeof(addr));
+    socklen_t length = sizeof(addr);
+    if (getsockname(sock, (struct sockaddr *)&addr, &length) == -1)
+    {
+        exit(1);
+    }
+
+    listen(sock, 10);
+    return sock;
+}
+
+//listen to the server's commands
+static void worker_listen(int sock)
+{
+    while (true)
+    {
+        int msgsock = accept(sock, (struct sockaddr *)0, (socklen_t *)0);
+        if (msgsock == -1)
+        {
+            cerr << "Error: accept socket connection\n";
+        }
+        else
+        {
+            control_msg msg;
+            recv(msgsock, &msg, sizeof(msg), MSG_WAITALL);
+            cout << "Cmd: " << msg.cmd << endl;
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
+    // set ip address
     strcpy(ip, argv[1]);
-    // set host port number if provided
+    // set host port number and/or client port number if provided
     if (argc > 2){
         hostport = atoi(argv[2]);
+        if (argc > 3){
+            clientport = atoi(argv[3]);
+        }
     }
+
+    int sock = worker_init();
+    worker_listen(sock);
+
     while (true)
     {
         request_msg msg;

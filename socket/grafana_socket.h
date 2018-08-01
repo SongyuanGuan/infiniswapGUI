@@ -3,8 +3,25 @@
 
 #include <ctime>
 #include <string>
+#include <iostream>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <thread>
+#include <cstdlib>
+#include <unistd.h>
+#include <queue>
+#include <vector>
+#include <unordered_map>
+#include <unordered_set>
+#include <cstring>
+#include <mutex>
 
-int hostport = 10219;
+
+int hostport = 10219; // port of master (server)
+int clientport = 10220; // port of client (worker)
 const char server_ip[] = "128.110.96.8";
 const int send_interval = 1; // the interval (seconds) a client sending message to server
 const int process_interval = 10; // the interval (seconds) server process data
@@ -98,17 +115,22 @@ struct bd_mapping{
     int pageout_latency;
 };
 
+// client send to server, include the information of the client device
 struct request_msg{
     char ip[16];
     bool bd_on;
     bool daemon_on;
-    //char time[14]; // yyyymmddhhmmss
     time_t time;
     ram_t ram;
     IO_para IO;
     mapping_relation mapping;
     bd_mapping bd_maps[max_portal_num];
     int bd_portal_num; // the number of daemon the bd has in its portal.list file
+};
+
+// server send to client, include the direction from dashboard
+struct control_msg{
+    char cmd[10];
 };
 
 #endif

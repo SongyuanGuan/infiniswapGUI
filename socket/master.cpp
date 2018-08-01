@@ -1,18 +1,3 @@
-#include <iostream>
-#include <arpa/inet.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#include <thread>
-#include <cstdlib>
-#include <unistd.h>
-#include <queue>
-#include <vector>
-#include <unordered_map>
-#include <unordered_set>
-#include <cstring>
-#include <mutex>
 #include "grafana_socket.h"
 #include "mysql.h"
 
@@ -92,7 +77,7 @@ static int server_init()
     int on = 1;
     setsockopt(sock, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on));
 
-    //bind the port number to the socket
+    //bind ip and port number to the socket
     struct sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     addr.sin_family = AF_INET;
@@ -105,7 +90,6 @@ static int server_init()
         exit(1);
     }
 
-    //starting listen, with buffer set to 10
     listen(sock, 10);
     return sock;
 }
@@ -291,8 +275,6 @@ static void server_listen(int sock)
 {
     while (true)
     {
-        time_t t = time(0);
-
         int msgsock = accept(sock, (struct sockaddr *)0, (socklen_t *)0);
         if (msgsock == -1)
         {
@@ -348,11 +330,42 @@ static void clear_db()
     }
 }
 
+// send control commands to client
+void send_to_worker(control_msg &msg, char* worker_ip)
+{
+    int sock;
+    struct sockaddr_in server;
+    char buf[1024];
+    /* Create socket. */
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        perror("opening stream socket");
+        exit(1);
+    }
+
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = inet_addr(worker_ip);
+    server.sin_port = htons(clientport);
+    if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
+    {
+        perror("connecting stream socket");
+        exit(1);
+    }
+
+    send(sock, &msg, sizeof(request_msg), 0);
+    close(sock);
+}
+
 int main(int argc, char** argv)
 {
     if (argc > 1){
         hostport = atoi(argv[1]);
+        if (argc > 2){
+            clientport = atoi(argv[2]);
+        }
     }
+
     connect_to_mysql();
     int sock = server_init();
     thread dataprocessing_t(process_data);
