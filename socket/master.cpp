@@ -363,7 +363,7 @@ void receive_cmds(){
         if (ch == 'p'){
             control_msg msg;
             strcpy(msg.cmd, "start daemon");
-            send_to_worker(msg, 192.168.0.57);
+            send_to_worker(msg, "192.168.0.57");
         }
     }
 }
