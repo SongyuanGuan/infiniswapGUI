@@ -26,3 +26,26 @@ CREATE TABLE bd_mapping( id INT NOT NULL AUTO_INCREMENT, dev_ip VARCHAR(16) NOT 
 
 * install piechart on grafana <br>
 sudo grafana-cli plugins install grafana-piechart-panel
+
+* On the server device: <br>
+1. install mysql and grafana <br>
+2. go to mysql and create the database and tables 
+
+* setup server <br>
+1. modify server_ip in GUI/socket/grafana_socket.h to the public ip address of the server <br>
+2. sudo ./setup/setupGUI.sh server 1 [serverport] [clientport] <br>
+(serverport: the port number of the server, clientport: the port number of the clients)
+
+* setup client <br>
+1. modify server_ip in GUI/socket/grafana_socket.h to the public ip address of the server <br>
+2. sudo ./setup/setupGUI.sh client [ip] [serverport] [clientport] <br>
+(ip: the ip address of client, serverport: the port number of the server, clientport: the port number of the clients)
+
+* view dashboard <br>
+1. open a web browser and go to "[serverip]:3000" where [serverip] is the server's public ip address. <br>
+2. the default username and password are both "admin" <br>
+3. click the configuration button on the left and click "add data source"
+4. In the setting window, choose Type as MySQL, Name: Infiniswap; Host: localhost:3306 (should be default); Database: infiniswap; User: root; Password: mysql. Then click "Save & Test", if everything goes well, it should appears "Database Connection OK".
+4. click the plus sign on the left and paste the three json files in GUI/grafana/ directory respectively to create three dashboards. <br>
+
+
