@@ -1,4 +1,5 @@
 #include "grafana_socket.h"
+#include <sys/un.h>
 #include "mysql.h"
 
 using namespace std;
@@ -303,12 +304,12 @@ static void connect_to_mysql()
 
     if (conn)
     {
-        printf("Connection success!\n");
+        printf("Mysql connection success!\n");
         FILE *fp = NULL;
     }
     else
     {
-        printf("Connection failed!\n");
+        printf("Mysql connection failed!\n");
     }
 }
 

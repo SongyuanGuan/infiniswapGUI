@@ -2,7 +2,6 @@
 #include <fstream>
 #include <algorithm>
 #include <cmath>
-#include <sys/un.h>
 #include "grafana_socket.h"
 
 using namespace std;
@@ -11,9 +10,9 @@ char ip[16];
 const char *swap_area = "/dev/infiniswap0";
 const char *portal_file_addr = "/users/songyuan/infiniswap/setup/portal.list";
 int last_version = -1;
-char *write_latency_files[] = {"/tmp/bd_write_latency_1", "/tmp/bd_write_latency_2", "/tmp/bd_write_latency_3"};
-char *read_latency_files[] = {"/tmp/bd_read_latency_1", "/tmp/bd_read_latency_2", "/tmp/bd_read_latency_3"};
-char *bd_info_files[] = {"/tmp/bd_info_1", "/tmp/bd_info_2", "/tmp/bd_info_3"};
+const char *write_latency_files[] = {"/tmp/bd_write_latency_1", "/tmp/bd_write_latency_2", "/tmp/bd_write_latency_3"};
+const char *read_latency_files[] = {"/tmp/bd_read_latency_1", "/tmp/bd_read_latency_2", "/tmp/bd_read_latency_3"};
+const char *bd_info_files[] = {"/tmp/bd_info_1", "/tmp/bd_info_2", "/tmp/bd_info_3"};
 
 int daemon_server_port = 11006;
 
@@ -201,7 +200,7 @@ void send_to_server(request_msg &msg)
     server.sin_port = htons(hostport);
     if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
     {
-        cerr << "connect server socket " << server_ip << ':' << hostport << endl;
+        cerr << "Error: connect server socket " << server_ip << ':' << hostport << endl;
     }
     else
     {
