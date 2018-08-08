@@ -14,6 +14,8 @@ char *write_latency_files[] = {"/tmp/bd_write_latency_1", "/tmp/bd_write_latency
 char *read_latency_files[] = {"/tmp/bd_read_latency_1", "/tmp/bd_read_latency_2", "/tmp/bd_read_latency_3"};
 char *bd_info_files[] = {"/tmp/bd_info_1", "/tmp/bd_info_2", "/tmp/bd_info_3"};
 
+int daemon_server_port = 11006;
+
 vector<string> portal_ips;
 bool bd_on = false; // record the block device status (reread the portal.list when bd restarts)
 
@@ -184,7 +186,7 @@ void send_to_server(request_msg &msg)
     int sock;
     struct sockaddr_in server;
     char buf[1024];
-    /* Create socket. */
+   
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
     {
@@ -205,6 +207,32 @@ void send_to_server(request_msg &msg)
     msg.time = time(0);
 
     send(sock, &msg, sizeof(request_msg), 0);
+    close(sock);
+}
+
+void send_to_daemon(control_msg &msg)
+{
+    int sock;
+    struct sockaddr_in daemon_server;
+    char buf[1024];
+   
+    sock = socket(AF_INET, SOCK_STREAM, 0);
+    if (sock == -1)
+    {
+        perror("opening stream socket");
+        exit(1);
+    }
+
+    daemon_server.sin_family = AF_INET;
+    daemon_server.sin_addr.s_addr = inet_addr("127.0.0.1");
+    daemon_server.sin_port = htons(daemon_server_port);
+    if (connect(sock, (struct sockaddr *)&daemon_server, sizeof daemon_server) == -1)
+    {
+        perror("connecting stream socket");
+        exit(1);
+    }
+
+    send(sock, &msg, sizeof(control_msg), 0);
     close(sock);
 }
 
@@ -303,6 +331,7 @@ static void worker_listen(int sock)
             control_msg msg;
             recv(msgsock, &msg, sizeof(msg), MSG_WAITALL);
             cout << "Cmd: " << msg.cmd << endl;
+            send_to_daemon(msg);
         }
     }
 }

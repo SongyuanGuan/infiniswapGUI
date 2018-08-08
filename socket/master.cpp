@@ -282,8 +282,8 @@ static void server_listen(int sock)
         }
         else
         {
-            thread tt(deal_request, msgsock);
-            tt.detach();
+            thread deal_request_t(deal_request, msgsock);
+            deal_request_t.detach();
         }
     }
 }
