@@ -22,10 +22,10 @@ bool bd_on = false; // record the block device status (reread the portal.list wh
 class latency_t
 {
   public:
-    vector<unsigned> read; // read latency data
-    vector<unsigned> write; // write latency data
-    vector<vector<unsigned> > sep_read_data; // read latency data for each daemon this block device is mapping to
-    vector<vector<unsigned> > sep_write_data; // write ------
+    vector<unsigned> read;                   // read latency data
+    vector<unsigned> write;                  // write latency data
+    vector<vector<unsigned>> sep_read_data;  // read latency data for each daemon this block device is mapping to
+    vector<vector<unsigned>> sep_write_data; // write ------
 
     latency_t()
     {
@@ -70,13 +70,11 @@ class latency_t
             sep_write_data[i].resize(0);
         }
     }
-
-    
 };
 
 latency_t all_latency;
 
-// read the portal.list file and 
+// read the portal.list file and
 void parse_portal()
 {
     portal_ips.resize(0);
@@ -88,7 +86,7 @@ void parse_portal()
     for (int i = 0; i < portal_num; i++)
     {
         string portal;
-        ifile >> portal; //portal is in the form of "ip:port"
+        ifile >> portal;                                         //portal is in the form of "ip:port"
         string ip = portal.substr(0, portal.find_first_of(':')); // get the ip address
         portal_ips.push_back(ip);
     }
@@ -166,14 +164,17 @@ void read_tp_and_latency(request_msg &msg)
 
     // get the medium latency for each daemon the block device is mapping to
     msg.bd_portal_num = portal_ips.size();
-    for (int i = 0; i < msg.bd_portal_num; i++){
+    for (int i = 0; i < msg.bd_portal_num; i++)
+    {
         strcpy(msg.bd_maps[i].daemon_ip, portal_ips[i].c_str());
         msg.bd_maps[i].pagein_speed = all_latency.sep_read_data[i].size();
-        if (msg.bd_maps[i].pagein_speed){
+        if (msg.bd_maps[i].pagein_speed)
+        {
             msg.bd_maps[i].pagein_latency = all_latency.sep_read_data[i][msg.bd_maps[i].pagein_speed / 2];
         }
         msg.bd_maps[i].pageout_speed = all_latency.sep_write_data[i].size();
-        if (msg.bd_maps[i].pageout_speed){
+        if (msg.bd_maps[i].pageout_speed)
+        {
             msg.bd_maps[i].pageout_latency = all_latency.sep_write_data[i][msg.bd_maps[i].pageout_speed / 2];
         }
     }
@@ -186,7 +187,7 @@ void send_to_server(request_msg &msg)
     int sock;
     struct sockaddr_in server;
     char buf[1024];
-   
+
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
     {
@@ -199,14 +200,16 @@ void send_to_server(request_msg &msg)
     server.sin_port = htons(hostport);
     if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
     {
-        perror("connecting stream socket");
-        exit(1);
+        cerr << "connect server socket " << server_ip << ':' << hostport << endl;
+    }
+    else
+    {
+        strcpy(msg.ip, ip);
+        msg.time = time(0);
+
+        send(sock, &msg, sizeof(request_msg), 0);
     }
 
-    strcpy(msg.ip, ip);
-    msg.time = time(0);
-
-    send(sock, &msg, sizeof(request_msg), 0);
     close(sock);
 }
 
@@ -215,7 +218,7 @@ void send_to_daemon(control_msg &msg)
     int sock;
     struct sockaddr_in daemon_server;
     char buf[1024];
-   
+
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock == -1)
     {
@@ -228,10 +231,14 @@ void send_to_daemon(control_msg &msg)
     daemon_server.sin_port = htons(daemon_server_port);
     if (connect(sock, (struct sockaddr *)&daemon_server, sizeof daemon_server) == -1)
     {
-        perror("connecting stream socket");
+        cerr << "Error: connect daemon socket 127.0.0.1:" << daemon_server_port << endl;
+    }
+    else
+    {
+        cout << "Send message to daemon: " << msg.cmd << endl;
+        send(sock, &msg, sizeof(control_msg), 0);
     }
 
-    send(sock, &msg, sizeof(control_msg), 0);
     close(sock);
 }
 
@@ -247,7 +254,8 @@ void read_bd(request_msg &msg)
     if (msg.bd_on)
     {
         // renew the portal ips when the bd restarts
-        if (!bd_on){
+        if (!bd_on)
+        {
             parse_portal();
         }
         read_tp_and_latency(msg);
@@ -340,9 +348,11 @@ int main(int argc, char **argv)
     // set ip address
     strcpy(ip, argv[1]);
     // set host port number and/or client port number if provided
-    if (argc > 2){
+    if (argc > 2)
+    {
         hostport = atoi(argv[2]);
-        if (argc > 3){
+        if (argc > 3)
+        {
             clientport = atoi(argv[3]);
         }
     }

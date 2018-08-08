@@ -349,7 +349,7 @@ void send_to_worker(control_msg &msg, char* worker_ip)
     server.sin_port = htons(clientport);
     if (connect(sock, (struct sockaddr *)&server, sizeof server) == -1)
     {
-        cout << "Error: connect stream socket " << worker_ip << ":" << clientport << endl;
+        cerr << "Error: connect worker socket " << worker_ip << ":" << clientport << endl;
     }
     else
     {
