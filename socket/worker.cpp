@@ -2,6 +2,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cmath>
+#include <sys/un.h>
 #include "grafana_socket.h"
 
 using namespace std;

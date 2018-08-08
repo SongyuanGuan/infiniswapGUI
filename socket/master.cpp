@@ -331,7 +331,7 @@ static void clear_db()
 }
 
 // send control commands to client
-void send_to_worker(control_msg &msg, char* worker_ip)
+void send_to_worker(control_msg &msg, char *worker_ip)
 {
     int sock;
     struct sockaddr_in server;
@@ -359,8 +359,73 @@ void send_to_worker(control_msg &msg, char* worker_ip)
     close(sock);
 }
 
-void receive_cmds(){
-    while (true){
+void listen_to_cmds()
+{
+    cout << "enter control function" << endl;
+    char *socket_path = "/tmp/icp-test";
+    struct sockaddr_un addr;
+    char buf[100];
+    int fd, cl, rc;
+
+    // if (argc > 1)
+    //     socket_path = argv[1];
+
+    if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1)
+    {
+        perror("socket error");
+        exit(-1);
+    }
+
+    memset(&addr, 0, sizeof(addr));
+    addr.sun_family = AF_UNIX;
+    if (*socket_path == '\0')
+    {
+        *addr.sun_path = '\0';
+        strncpy(addr.sun_path + 1, socket_path + 1, sizeof(addr.sun_path) - 2);
+    }
+    else
+    {
+        strncpy(addr.sun_path, socket_path, sizeof(addr.sun_path) - 1);
+        unlink(socket_path);
+    }
+
+    if (bind(fd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
+    {
+        perror("bind error");
+        exit(-1);
+    }
+
+    if (listen(fd, 5) == -1)
+    {
+        perror("listen error");
+        exit(-1);
+    }
+
+    while (1)
+    {
+        if ((cl = accept(fd, NULL, NULL)) == -1)
+        {
+            perror("accept error");
+            continue;
+        }
+
+        while ((rc = read(cl, buf, sizeof(buf))) > 0)
+        {
+            printf("read %u bytes: %.*s\n", rc, rc, buf);
+        }
+        if (rc == -1)
+        {
+            perror("read");
+        }
+        else if (rc == 0)
+        {
+            printf("EOF\n");
+        }
+        close(cl);
+    }
+
+    while (true)
+    {
         control_msg msg;
         strcpy(msg.cmd, "start daemon");
         cout << "send message to worker *** \n";
@@ -369,11 +434,13 @@ void receive_cmds(){
     }
 }
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
-    if (argc > 1){
+    if (argc > 1)
+    {
         hostport = atoi(argv[1]);
-        if (argc > 2){
+        if (argc > 2)
+        {
             clientport = atoi(argv[2]);
         }
     }
@@ -384,8 +451,8 @@ int main(int argc, char** argv)
     dataprocessing_t.detach();
     thread dbclear_t(clear_db);
     dbclear_t.detach();
-    thread receive_cmd_t(receive_cmds);
-    receive_cmd_t.detach();
+    thread listen_to_cmds_t(listen_to_cmds);
+    listen_to_cmds_t.detach();
 
     server_listen(sock);
 
