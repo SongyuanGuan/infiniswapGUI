@@ -229,7 +229,6 @@ void send_to_daemon(control_msg &msg)
     if (connect(sock, (struct sockaddr *)&daemon_server, sizeof daemon_server) == -1)
     {
         perror("connecting stream socket");
-        exit(1);
     }
 
     send(sock, &msg, sizeof(control_msg), 0);
