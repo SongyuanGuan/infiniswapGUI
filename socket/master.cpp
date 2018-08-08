@@ -332,7 +332,7 @@ static void clear_db()
 }
 
 // send control commands to client
-void send_to_worker(control_msg &msg, char *worker_ip)
+void send_to_worker(control_msg &msg, const char *worker_ip)
 {
     int sock;
     struct sockaddr_in server;
