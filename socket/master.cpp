@@ -414,9 +414,15 @@ void listen_to_cmds()
         {
             printf("read %u bytes: %.*s\n", rc, rc, buf);
             string message(buf);
+            if (buf[0] != '/'){
+                cerr << "invalid cmd: " << message << endl;
+                continue;
+            }
             int index = message.find_first_of("/", 1);
             string ip = message.substr(1, index - 1);
-            string msg = message.substr(index);
+            string cmd = message.substr(index);
+            control_msg msg;
+            strcpy(msg.cmd, cmd.c_str());
             send_to_worker(msg, ip.c_str());
         }
         if (rc == -1)
