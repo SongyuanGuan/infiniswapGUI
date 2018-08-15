@@ -363,7 +363,7 @@ void send_to_worker(control_msg &msg, const char *worker_ip)
 void listen_to_cmds()
 {
     cout << "enter control function" << endl;
-    char *socket_path = "/tmp/icp-test";
+    const char *socket_path = "/tmp/icp-test";
     struct sockaddr_un addr;
     char buf[100];
     int fd, cl, rc;

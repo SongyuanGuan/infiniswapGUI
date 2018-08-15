@@ -44,8 +44,13 @@ sudo grafana-cli plugins install grafana-piechart-panel
 * view dashboard <br>
 1. open a web browser and go to "[serverip]:3000" where [serverip] is the server's public ip address. <br>
 2. the default username and password are both "admin" <br>
-3. click the configuration button on the left and click "add data source"
-4. In the setting window, choose Type as MySQL, Name: Infiniswap; Host: localhost:3306 (should be default); Database: infiniswap; User: root; Password: mysql. Then click "Save & Test", if everything goes well, it should appears "Database Connection OK".
+3. click the configuration button on the left and click "add data source" <br>
+4. In the setting window, choose Type as MySQL, Name: Infiniswap; Host: localhost:3306 (should be default); Database: infiniswap; User: root; Password: mysql. Then click "Save & Test", if everything goes well, it should appears "Database Connection OK". <br>
 4. click the plus sign on the left and paste the three json files in GUI/grafana/ directory respectively to create three dashboards. <br>
 
 
+* start infiniswap on all the devices <br>
+1. install expect and tmux on the host machine <br>
+2. modify server.list to be "{server_public_ip}:{server_private_ip}" <br>
+3. modify device.list to be "{device_public_ip}:{device_private_ip}" for each device on a separate line (note that the private_ip address will be used to setup infiniswap) <br>
+3. modify connect.exp: set user and password as your username and password in order to ssh to remote devices (the ssh command should be "ssh {$user}@ip")

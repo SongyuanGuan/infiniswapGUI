@@ -143,7 +143,7 @@ void read_tp_and_latency(request_msg &msg)
     ifile.open("/tmp/bd_version");
     ifile >> version;
     ifile.close();
-    cout << "bd file version is: " << version << endl;
+    //cout << "bd file version is: " << version << endl;
 
     ifile.open(bd_info_files[version]);
     ifile >> msg.IO.pagein_speed >> msg.IO.pageout_speed >> msg.IO.total_IO >> msg.IO.remote_IO;
@@ -275,7 +275,7 @@ void read_daemon(request_msg &msg)
         //valid data if version is different
         if (version != last_version)
         {
-            cout << version << endl;
+            //cout << version << endl;
             last_version = version;
             ifile >> msg.ram.free >> msg.ram.filter_free >> msg.ram.allocated_not_mapped >>
                 msg.ram.mapped >> msg.mapping.mem_status;
