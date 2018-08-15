@@ -104,7 +104,7 @@ static void put_data_into_mysql(char *str)
 
     if (!res)
     {
-        printf("Affected %lu rows", (unsigned long)mysql_affected_rows(conn));
+        //printf("Affected %lu rows", (unsigned long)mysql_affected_rows(conn));
     }
     else
     {
@@ -414,12 +414,16 @@ void listen_to_cmds()
         {
             printf("read %u bytes: %.*s\n", rc, rc, buf);
             string message(buf);
-            if (buf[0] != '/'){
+            int first_index = message.find_first_of("/");
+            if (first_index == string::npos){
                 cerr << "invalid cmd: " << message << endl;
                 continue;
             }
-            int index = message.find_first_of("/", 1);
+            int second_index = message.find_first_of("/", first_index + 1);
             string ip = message.substr(1, index - 1);
+            if (ip.substr(0, 3) != "192"){
+                cerr << "invalid ip address: " << ip << endl;
+            }
             string cmd = message.substr(index);
             control_msg msg;
             strcpy(msg.cmd, cmd.c_str());

@@ -52,5 +52,11 @@ sudo grafana-cli plugins install grafana-piechart-panel
 * start infiniswap on all the devices <br>
 1. install expect and tmux on the host machine <br>
 2. modify server.list to be "{server_public_ip}:{server_private_ip}" <br>
-3. modify device.list to be "{device_public_ip}:{device_private_ip}" for each device on a separate line (note that the private_ip address will be used to setup infiniswap) <br>
-3. modify connect.exp: set user and password as your username and password in order to ssh to remote devices (the ssh command should be "ssh {$user}@ip")
+3. modify device.list to be "{device_public_ip}:{device_private_ip}" for each device on a separate line (note that the private_ip address will be used to setup infiniswap) 
+<br>
+3. modify connect.exp: <br>
+a. set user and password as your username and password in order to ssh to remote devices (the ssh command should be "ssh {$user}@ip") <br>
+b. set dir to be the directory to setup infiniswap <br>
+4. run ./installall.sh to install infiniswap on each device <br>
+5. run ./setupall.sh to setup infiniswap on each device <br>
+6. run ./stopall.sh to stop infiniswap on each device <br>

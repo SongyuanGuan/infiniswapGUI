@@ -1,0 +1,66 @@
+#!/usr/bin/expect
+# usage: ./connect.exp [host_ip] [local_ip] [cmd] [mode/port]
+set host_ip [lindex $argv 0]
+set local_ip [lindex $argv 1]
+set cmd [lindex $argv 2]
+
+# ssh user
+set user "username"
+# ssh password
+set password "password\n"
+# setup directory
+set dir "/xxx/xxx" 
+
+set host "${user}@${host_ip}"
+
+if { $cmd == "GUI" } {
+    set mode [lindex $argv 3] 
+    set hostport "12135"
+    set clientport "12136"
+    spawn scp ./setupGUI.sh $host:$dir/setupGUI.sh
+    expect "passphrase"
+    send $password
+    interact
+    spawn ssh -p 22 $host "chmod +x setupGUI.sh ; sudo ./setupGUI.sh $mode $local_ip $hostport $clientport $dir"
+    expect "passphrase"
+    send $password
+    interact
+} elseif { $cmd == "DM" } {
+    set port [lindex $argv 3]
+    spawn scp ./setupDaemon.sh $host:$dir/setupDaemon.sh 
+    expect "passphrase"
+    send $password
+    interact
+    spawn ssh -p 22 $host "chmod +x setupDaemon.sh ; sudo ./setupDaemon.sh $local_ip $port $dir"
+    expect "passphrase"
+    send $password
+    interact
+} elseif { $cmd == "BD" } {
+    spawn scp ./setupBD.sh $host:$dir/setupBD.sh 
+    expect "passphrase"
+    send $password
+    interact
+    spawn ssh -p 22 $host "chmod +x setupBD.sh ; sudo ./setupBD.sh $dir"
+    expect "passphrase"
+    send $password
+    interact 
+} elseif { $cmd == "ST" } {
+    spawn scp ./stop.sh $host:$dir/stop.sh 
+    expect "passphrase"
+    send $password
+    interact
+    spawn ssh -p 22 $host "chmod +x stop.sh ; sudo ./stop.sh $dir" 
+    expect "passphrase"
+    send $password
+    interact
+} elseif { $cmd == "IN" } {
+    # install
+    spawn scp ./install.sh $host:$dir/install.sh 
+    expect "passphrase"
+    send $password
+    interact
+    spawn ssh -p 22 $host "chmod +x install.sh ; sudo ./install.sh $dir" 
+    expect "passphrase"
+    send $password
+    interact 
+}
