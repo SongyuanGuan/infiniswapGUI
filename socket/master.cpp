@@ -204,7 +204,7 @@ static void process_request(const request_msg &msg)
         sprintf(str1,
                 "INSERT INTO block_device (dev_ip, total_IO, remote_IO, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, high_pagein_latency, low_pagein_latency, high_pageout_latency, low_pageout_latency, time) VALUES ('%s', %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, NOW())",
                 msg.ip, msg.IO.total_IO, msg.IO.remote_IO, msg.IO.pagein_speed, msg.IO.pageout_speed, msg.IO.pagein_latency, msg.IO.pageout_latency, msg.IO.high_pagein_latency, msg.IO.low_pagein_latency, msg.IO.high_pageout_latency, msg.IO.low_pageout_latency);
-        cout << str1 << endl;
+        //cout << str1 << endl;
         put_data_into_mysql(str1);
 
         for (int i = 0; i < msg.bd_portal_num; i++)
@@ -213,7 +213,7 @@ static void process_request(const request_msg &msg)
             sprintf(str2,
                     "INSERT INTO bd_mapping (dev_ip, remote_ip, pagein_throughput, pageout_throughput, pagein_latency, pageout_latency, time) VALUES ('%s', '%s', %d, %d, %d, %d, NOW())",
                     msg.ip, msg.bd_maps[i].daemon_ip, msg.bd_maps[i].pagein_speed, msg.bd_maps[i].pageout_speed, msg.bd_maps[i].pagein_latency, msg.bd_maps[i].pageout_latency);
-            cout << str2 << endl;
+            //cout << str2 << endl;
             put_data_into_mysql(str2);
         }
     }
@@ -223,14 +223,14 @@ static void process_request(const request_msg &msg)
         sprintf(str1,
                 "INSERT INTO daemon (dev_ip, RAM_free, RAM_filter_free, RAM_mapped, RAM_allocated, time) VALUES ('%s', %d, %d, %d, %d, NOW())",
                 msg.ip, msg.ram.free, msg.ram.filter_free, msg.ram.mapped, msg.ram.allocated_not_mapped);
-        cout << str1 << endl;
+        //cout << str1 << endl;
         put_data_into_mysql(str1);
 
         char str2[200];
         sprintf(str2,
                 "INSERT INTO daemon_mem (dev_ip, mem_status, time) VALUES ('%s', '%s', NOW())",
                 msg.ip, msg.mapping.mem_status);
-        cout << str2 << endl;
+        //cout << str2 << endl;
         put_data_into_mysql(str2);
 
         for (int i = 0; i < MAX_FREE_MEM_GB; i++)
@@ -242,7 +242,7 @@ static void process_request(const request_msg &msg)
                 sprintf(str3,
                         "INSERT INTO daemon_mapping (dev_ip, remote_ip, local_chunk, remote_chunk, time) VALUES ('%s', '%s', %d, %d, NOW())",
                         msg.ip, msg.mapping.map_infos[i].remote_ip, i + 1, msg.mapping.map_infos[i].remote_chunk_num + 1);
-                cout << str3 << endl;
+                //cout << str3 << endl;
                 put_data_into_mysql(str3);
             }
         }
@@ -413,6 +413,11 @@ void listen_to_cmds()
         while ((rc = read(cl, buf, sizeof(buf))) > 0)
         {
             printf("read %u bytes: %.*s\n", rc, rc, buf);
+            string message(buf);
+            int index = message.find_first_of("/", 1);
+            string ip = message.substr(1, index - 1);
+            string msg = message.substr(index);
+            send_to_worker(msg, ip.c_str());
         }
         if (rc == -1)
         {
@@ -423,15 +428,6 @@ void listen_to_cmds()
             printf("EOF\n");
         }
         close(cl);
-    }
-
-    while (true)
-    {
-        control_msg msg;
-        strcpy(msg.cmd, "start daemon");
-        cout << "send message to worker *** \n";
-        send_to_worker(msg, "192.168.0.57");
-        sleep(5);
     }
 }
 
