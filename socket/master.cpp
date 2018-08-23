@@ -420,11 +420,11 @@ void listen_to_cmds()
                 continue;
             }
             int second_index = message.find_first_of("/", first_index + 1);
-            string ip = message.substr(1, index - 1);
+            string ip = message.substr(first_index, second_index - 1);
             if (ip.substr(0, 3) != "192"){
                 cerr << "invalid ip address: " << ip << endl;
             }
-            string cmd = message.substr(index);
+            string cmd = message.substr(second_index);
             control_msg msg;
             strcpy(msg.cmd, cmd.c_str());
             send_to_worker(msg, ip.c_str());
