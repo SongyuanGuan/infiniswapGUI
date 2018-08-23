@@ -449,6 +449,10 @@ int main(int argc, char **argv)
         if (argc > 2)
         {
             clientport = atoi(argv[2]);
+            if (argc > 3)
+            {
+                strcpy(server_ip, argv[3]);
+            }
         }
     }
 

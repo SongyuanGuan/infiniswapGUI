@@ -24,8 +24,8 @@ class latency_t
   public:
     vector<unsigned> read;                   // read latency data
     vector<unsigned> write;                  // write latency data
-    vector<vector<unsigned> > sep_read_data;  // read latency data for each daemon this block device is mapping to
-    vector<vector<unsigned> > sep_write_data; // write ------
+    vector<vector<unsigned>> sep_read_data;  // read latency data for each daemon this block device is mapping to
+    vector<vector<unsigned>> sep_write_data; // write ------
 
     latency_t()
     {
@@ -354,6 +354,10 @@ int main(int argc, char **argv)
         if (argc > 3)
         {
             clientport = atoi(argv[3]);
+            if (argc > 4)
+            {
+                strcpy(server_ip, argv[4]);
+            }
         }
     }
 
