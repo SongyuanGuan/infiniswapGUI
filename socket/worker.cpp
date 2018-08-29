@@ -135,17 +135,25 @@ unsigned calculate_proportion(float range, bool is_write)
     }
 }
 
-void read_tp_and_latency(request_msg &msg)
+int read_tp_and_latency(request_msg &msg)
 {
     ifstream ifile;
     int version;
 
     ifile.open("/tmp/bd_version");
+    if (!ifile){
+        cerr << "Error: cannot open file bd_version";
+        return -1;
+    }
     ifile >> version;
     ifile.close();
     //cout << "bd file version is: " << version << endl;
 
     ifile.open(bd_info_files[version]);
+    if (!ifile){
+        cerr << "Error: cannot open file " << bd_info_files[version] << endl;
+        return -1;
+    }
     ifile >> msg.IO.pagein_speed >> msg.IO.pageout_speed >> msg.IO.total_IO >> msg.IO.remote_IO;
     ifile.close();
 
@@ -180,6 +188,7 @@ void read_tp_and_latency(request_msg &msg)
     }
 
     all_latency.clear();
+    return 0;
 }
 
 void send_to_server(request_msg &msg)
@@ -258,7 +267,10 @@ void read_bd(request_msg &msg)
         {
             parse_portal();
         }
-        read_tp_and_latency(msg);
+        if (read_tp_and_latency(msg) == -1){
+            msg.bd_on = false;
+            return;
+        }
     }
     bd_on = msg.bd_on;
 }
@@ -267,6 +279,9 @@ void read_daemon(request_msg &msg)
 {
     ifstream ifile;
     ifile.open("/tmp/daemon");
+    if (!ifile){
+        cerr << "Error: cannot open file /tmp/daemon" << endl;
+    }
     ifile >> msg.daemon_on;
     if (msg.daemon_on)
     {
