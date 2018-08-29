@@ -190,6 +190,10 @@ static void process_data()
 
         put_data_into_mysql(str);
 
+        char del_str[100];
+        sprintf(del_str, "DELETE FROM bd_mapping");
+        put_data_into_mysql(del_str);
+
         sleep(process_interval);
     }
 }
@@ -415,13 +419,15 @@ void listen_to_cmds()
             printf("read %u bytes: %.*s\n", rc, rc, buf);
             string message(buf);
             int first_index = message.find_first_of("/");
-            if (first_index == string::npos){
+            if (first_index == string::npos)
+            {
                 cerr << "invalid cmd: " << message << endl;
                 continue;
             }
             int second_index = message.find_first_of("/", first_index + 1);
             string ip = message.substr(first_index, second_index - 1);
-            if (ip.substr(0, 3) != "192"){
+            if (ip.substr(0, 3) != "192")
+            {
                 cerr << "invalid ip address: " << ip << endl;
             }
             string cmd = message.substr(second_index);
