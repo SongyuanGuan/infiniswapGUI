@@ -1,15 +1,15 @@
 #!/usr/bin/expect
-# usage: ./connect.exp [host_ip] [local_ip] [cmd] [mode/port]
+# usage: ./connect.exp [host_ip] [local_ip] [cmd] [mode/port] ([server_public_ip])
 set host_ip [lindex $argv 0]
 set local_ip [lindex $argv 1]
 set cmd [lindex $argv 2]
 
 # ssh user
-set user "username"
+set user "XXXXXX"
 # ssh password
-set password "password\n"
-# setup directory
-set dir "/xxx/xxx" 
+set password "XXXXXX\n\r"
+# the directory to setup infiniswap
+set dir "/XXX/XXX" 
 
 set host "${user}@${host_ip}"
 
@@ -17,11 +17,12 @@ if { $cmd == "GUI" } {
     set mode [lindex $argv 3] 
     set hostport "12135"
     set clientport "12136"
+    set server_public_ip [lindex $argv 4]
     spawn scp ./setupGUI.sh $host:$dir/setupGUI.sh
     expect "passphrase"
     send $password
     interact
-    spawn ssh -p 22 $host "chmod +x setupGUI.sh ; sudo ./setupGUI.sh $mode $local_ip $hostport $clientport $dir"
+    spawn ssh -p 22 $host "chmod +x setupGUI.sh ; sudo ./setupGUI.sh $mode $local_ip $hostport $clientport $dir $server_public_ip"
     expect "passphrase"
     send $password
     interact
@@ -56,11 +57,13 @@ if { $cmd == "GUI" } {
 } elseif { $cmd == "IN" } {
     # install
     spawn scp ./install.sh $host:$dir/install.sh 
-    expect "passphrase"
-    send $password
+    expect {
+            "yes/no"   { send "yes\n\r";exp_continue }
+            "passphrase" { send "$password"}
+    }
     interact
     spawn ssh -p 22 $host "chmod +x install.sh ; sudo ./install.sh $dir" 
     expect "passphrase"
     send $password
-    interact 
+    interact
 }

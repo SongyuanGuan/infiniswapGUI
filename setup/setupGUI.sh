@@ -1,5 +1,5 @@
 #!/bin/bash
-# usage: /setupGUI.sh [mode] [ip] [hostport] [clientport] [dir]
+# usage: /setupGUI.sh [mode] [ip] [hostport] [clientport] [dir] [server_public_ip]
 set -e 
 set -x
 cd $5/infiniswapGUI
@@ -8,8 +8,8 @@ cd socket
 sudo ./compile
 # setup master
 if  [ $1 == "server" ]; then
-    sudo ./runserver $3 $4
+    sudo ./runserver $3 $4 $6
 # setup worker
 elif [ $1 == "client" ]; then
-    sudo ./runworker $2 $3 $4
+    sudo ./runworker $2 $3 $4 $6
 fi
