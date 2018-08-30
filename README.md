@@ -67,12 +67,12 @@ a. set user and password as your username and password in order to ssh to remote
 b. set dir to be the directory to setup infiniswap <br>
 6. to install infiniswap on each device:
 ```
-./installall.sh 
+./installall.sh
 ```
-7. modify portal.list on each device which is going to have block device setup (in infiniswap/setup/ directory) <br>
+7. modify portal.list (in infiniswap/setup/ directory) on each device which is going to have block device setup <br>
 8. to setup infiniswap on each device 
 ```
-./setupall.sh 
+./setupall.sh
 ```
 (using 'ctrl+b' followed by 'd' to exit tmux window, use tmux attach -t [session_name] to go to a tmux session) <br>
 9. to stop infiniswap on each device
