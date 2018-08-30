@@ -33,7 +33,7 @@ sudo grafana-cli plugins install grafana-piechart-panel
 
 * setup server <br>
 ```
-sudo ./setup/setupGUI.sh server 1 [serverport] [clientport] . [server_public_ip] <br>
+sudo ./setup/setupGUI.sh server 1 [serverport] [clientport] . [server_public_ip] 
 ```
 (serverport: the port number of the server, clientport: the port number of the clients)
 
@@ -44,7 +44,7 @@ sudo ./setup/setupGUI.sh client [ip] [serverport] [clientport] . [server_public_
 (ip: the ip address of client, serverport: the port number of the server, clientport: the port number of the clients)
 
 * view dashboard <br>
-1. open a web browser and go to "[serverip]:3000" where [serverip] is the server's public ip address. <br>
+1. open a web browser and go to "[server_ip]:3000" where [server_ip] is the server's public ip address. <br>
 2. the default username and password are both "admin" <br>
 3. click the configuration button on the left and click "add data source" <br>
 4. In the setting window, choose Type as MySQL, Name: Infiniswap; Host: localhost:3306 (should be default); Database: infiniswap; User: root; Password: mysql. Then click "Save & Test", if everything goes well, it should appears "Database Connection OK". <br>
@@ -52,8 +52,11 @@ sudo ./setup/setupGUI.sh client [ip] [serverport] [clientport] . [server_public_
 5. General information is shown in general_info dashboard, and detailed data of block device and daemon can be seen on block_device and daemon dashboards respectively. Note that you can select dev_ip on the top left corner, and change time range on the top right corner.
 
 * start infiniswap on all the devices <br>
-1. install expect and tmux on the host machine: <br>
-sudo apt-get install tmux <br>
+1. install expect and tmux on the host machine: 
+```
+sudo apt-get install expect
+sudo apt-get install tmux 
+```
 2. modify server.list to be "{server_public_ip}:{server_private_ip}" <br>
 3. modify device.list to be "{device_public_ip}:{device_private_ip}" for each device on a separate line (note that the private_ip address will be used to setup infiniswap) 
 <br>
@@ -62,6 +65,6 @@ sudo apt-get install tmux <br>
 a. set user and password as your username and password in order to ssh to remote devices (the ssh command should be "ssh {$user}@ip") <br>
 b. set dir to be the directory to setup infiniswap <br>
 6. run ./installall.sh to install infiniswap on each device <br>
-7. modify portal.list on each device which is going to have block device setup (in infiniswap/setup/ directory) 
+7. modify portal.list on each device which is going to have block device setup (in infiniswap/setup/ directory) <br>
 8. run ./setupall.sh to setup infiniswap on each device (using 'ctrl+b' followed by 'd' to exit tmux window, use tmux attach -t [session_name] to go to a tmux session) <br>
 9. run ./stopall.sh to stop infiniswap on each device <br>
