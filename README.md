@@ -53,7 +53,7 @@ sudo ./setup/setupGUI.sh client [ip] [serverport] [clientport] . [server_public_
 
 * start infiniswap on all the devices <br>
 (Note that the following are all executed under setup directory.)
-1. install expect and tmux on the host machine: 
+1. install expect and tmux on the host machine: <br>
 ```
 sudo apt-get install expect
 sudo apt-get install tmux 
@@ -65,17 +65,17 @@ sudo apt-get install tmux
 5. modify connect.exp: <br>
 a. set user and password as your username and password in order to ssh to remote devices (the ssh command should be "ssh {$user}@ip") <br>
 b. set dir to be the directory to setup infiniswap <br>
-6. to install infiniswap on each device:
+6. to install infiniswap on each device: <br>
 ```
 ./installall.sh
 ```
 7. modify portal.list (in infiniswap/setup/ directory) on each device which is going to have block device setup <br>
-8. to setup infiniswap on each device 
+8. to setup infiniswap on each device <br>
 ```
 ./setupall.sh
 ```
 (using 'ctrl+b' followed by 'd' to exit tmux window, use tmux attach -t [session_name] to go to a tmux session) <br>
-9. to stop infiniswap on each device
+9. to stop infiniswap on each device <br>
 ```
 ./stopall.sh
 ```
