@@ -76,7 +76,8 @@ b. set dir to be the directory to setup infiniswap <br>
 ```
 ./setupall.sh
 ```
-(using 'ctrl+b' followed by 'd' to exit tmux window, use tmux attach -t [session_name] to go to a tmux session) <br>
+
+(use 'ctrl+b' followed by 'd' to exit tmux window, use tmux attach -t [session_name] to go to a tmux session) <br>
 9. to stop infiniswap on each device <br>
 ```
 ./stopall.sh
