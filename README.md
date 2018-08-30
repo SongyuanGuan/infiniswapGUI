@@ -67,6 +67,15 @@ a. set user and password as your username and password in order to ssh to remote
 b. set dir to be the directory to setup infiniswap <br>
 6. to install infiniswap on each device: <br>
 ```
+sudo apt-get install expect
+sudo apt-get install tmux 
+```
+asd
+```
+abc
+```
+a
+```
 ./installall.sh
 ```
 7. modify portal.list (in infiniswap/setup/ directory) on each device which is going to have block device setup <br>
