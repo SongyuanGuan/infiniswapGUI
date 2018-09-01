@@ -2,7 +2,7 @@
   "annotations": {
     "list": [
       {
-        "$$hashKey": "object:319",
+        "$$hashKey": "object:96",
         "builtIn": 1,
         "datasource": "-- Grafana --",
         "enable": true,
@@ -16,8 +16,8 @@
   "editable": true,
   "gnetId": null,
   "graphTooltip": 0,
-  "id": 3,
-  "iteration": 1532104142183,
+  "id": null,
+  "iteration": 1535829765671,
   "links": [
     {
       "asDropdown": false,
@@ -28,9 +28,9 @@
   ],
   "panels": [
     {
-      "content": "<canvas id=\"myCanvas\">\r\n</canvas>\r\n<p id=\"chunk_info\"> </p>\r\n<form name=\"data\">\r\n    <input type=\"hidden\" name=\"mem_status\" value=$mem_status />\r\n    <input type=\"hidden\" name=\"chunk_mapping\" value=$chunk_mapping />\r\n    <input type=\"hidden\" name=\"device_ip\" value=$device_ip />\r\n</form>\r\n<script>\r\n\r\n    var mem_status = document.data.mem_status.value;\r\n    var chunk_mapping = document.data.chunk_mapping.value.substring(1, document.data.chunk_mapping.value.length - 1).split(',');\r\n\r\n\r\n    var mapped_chunks = new Object();\r\n \r\n    function read_mapping() {\r\n      \r\n         var chunk = -1;\r\n        var ip = \"\";\r\n        var lastpart = \"nothing\";\r\n        for (var part of chunk_mapping) {\r\n            if (part.length <= 2) {\r\n                if (lastpart.length <= 2) {\r\n                    mapped_chunks[lastpart] = ip;\r\n                }\r\n                chunk = part;\r\n            }\r\n            else {\r\n                ip = part;\r\n                mapped_chunks[chunk] = ip;\r\n            }\r\n            lastpart = part;\r\n        }\r\n        if (lastpart.length <= 2) {\r\n            mapped_chunks[lastpart] = ip;\r\n        }\r\n    }\r\n\r\n    read_mapping();\r\n\r\n    var num = 32;\r\n    var canvas = document.getElementById(\"myCanvas\");\r\n    canvas.width = window.innerWidth * 8.6 / 10;\r\n    canvas.height = window.innerWidth / 10;\r\n    var ctx = canvas.getContext(\"2d\");\r\n    var left = canvas.width / (num + 2);\r\n    var right = canvas.width * (num + 1) / (num + 2);\r\n    var blockwidth = canvas.width / num * 4 / 5;\r\n    var distance = canvas.width / (num + 2);\r\n    var blockheight = canvas.height / 4 * 3;\r\n    var graphtop = canvas.height / 8;\r\n    var fontsize = canvas.height / 8;\r\n    var lastShowBlock = 0;\r\n    var moving = false;\r\n\r\n    function drawMemBlock(i) {\r\n        if (i < 0) {\r\n            return;\r\n        }\r\n        var type = mem_status[i];\r\n        switch (type) {\r\n            case '0':\r\n                ctx.fillStyle = \"#EEEEEE\";\r\n                break;\r\n            case '1':\r\n                ctx.fillStyle = \"#00FFFF\";\r\n                break;\r\n            case '2':\r\n                ctx.fillStyle = \"#FF0000\";\r\n                break;\r\n        }\r\n        ctx.fillRect(left + distance * i, graphtop, blockwidth, blockheight);\r\n        \r\n        ctx.fillRect(left + distance * i, graphtop+blockheight*1.5, blockwidth, blockheight/2);\r\n    }\r\n    \r\n    function drawMemBlocks() {\r\n        for (var i = 0; i < num; i++) {\r\n            drawMemBlock(i);\r\n        }\r\n    }\r\n\r\n    drawMemBlocks();\r\n\r\n    setInterval(function () {\r\n        var new_mem_status = document.data.mem_status.value;\r\n        if (new_mem_status !== mem_status) {\r\n            mem_status = new_mem_status;\r\n            drawMemBlocks();\r\n            read_mapping();\r\n        }\r\n    }, 5000);\r\n\r\n    canvas.onmousemove = function (e) {\r\n        if (moving) {\r\n            return;\r\n        }\r\n        moving = true;\r\n        var rect = this.getBoundingClientRect();\r\n        var canvasPoint = {\r\n            x: e.clientX - rect.left,\r\n            y: e.clientY - rect.top\r\n        };\r\n\r\n        var inblock = false;\r\n        for (var i = 1; i <= num; i++) {\r\n            if (canvasPoint.x > left + (i - 1) * distance && canvasPoint.x < left + (i - 1) * distance + blockwidth && canvasPoint.y > graphtop && canvasPoint.y < graphtop + blockheight) {\r\n                if (i !== lastShowBlock) {\r\n                    ctx.textAlign = \"center\";\r\n                    ctx.font = fontsize + \"px Arial\";\r\n                    ctx.fillStyle = \"#000000\";\r\n                    ctx.fillText(i.toString(), left + (i - 1) * distance + 0.5 * blockwidth, graphtop + 0.6 * blockheight);\r\n                    drawMemBlock(lastShowBlock - 1);\r\n                    lastShowBlock = i;\r\n                    canvas.addEventListener('click', function(event) {\r\n                        var windowObjectReference;\r\n                        var strWindowFeatures = \"menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes\";\r\n                        var message = \"send a websocket to infiniswap, daemon \";\r\n                        var chunk = lastShowBlock;\r\n                        message+=chunk.toString();\r\n                        alert(message);\r\n                        var device_ip = document.data.device_ip.value;\r\n                        var url = \"http://localhost:4000/evt/\";\r\n                        url = url+device_ip.toString();\r\n                        url = url + \"/\";\r\n                        url = url+chunk.toString();\r\n                        window.open(url,'_blank');\r\n                        }, false);\r\n\r\n                    switch (mem_status[i - 1]) {\r\n                        case '0':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is either free or used by local program.\";\r\n                            break;\r\n                        case '1':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is allocated but not used.\";\r\n                            break;\r\n                        case '2':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is being used by device: \" + mapped_chunks[i] + \", chunk: 0.\";\r\n                            break;\r\n                    }\r\n                }\r\n                inblock = true;\r\n            }\r\n        }\r\n        if (!inblock) {\r\n            drawMemBlock(lastShowBlock - 1);\r\n            lastShowBlock = 0;\r\n            document.getElementById('chunk_info').innerHTML = \"\";\r\n        }\r\n        moving = false;\r\n    };\r\n\r\n    /*\r\n    function WebSocketTest() {\r\n            if (\"WebSocket\" in window) {\r\n                alert(\"WebSocket is supported by your Browser!\");\r\n                // Let us open a web socket\r\n                var ws = new WebSocket(\"ws://localhost:9998/echo\");\r\n                ws.onopen = function () {\r\n                    // Web Socket is connected, send data using send()\r\n                    ws.send(\"Message to send\");\r\n                    alert(\"Message is sent...\");\r\n                };\r\n                ws.onmessage = function (evt) {\r\n                    var received_msg = evt.data;\r\n                    alert(\"Message is received...\");\r\n                };\r\n                ws.onclose = function () {\r\n                    // websocket is closed.\r\n                    alert(\"Connection is closed...\");\r\n                };\r\n            }\r\n            else {\r\n                // The browser doesn't support WebSocket\r\n                alert(\"WebSocket NOT supported by your Browser!\");\r\n            }\r\n        }\r\n        WebSocketTest();\r\n    */\r\n    \r\n    \r\n    canvas.addEventListener('click', function(e) { \r\n      if (moving) {\r\n            return;\r\n        }\r\n        moving = true;\r\n        var rect = this.getBoundingClientRect();\r\n        var canvasPoint = {\r\n            x: e.clientX - rect.left,\r\n            y: e.clientY - rect.top\r\n        };\r\n\r\n        var inblock = false;\r\n        for (var i = 1; i <= num; i++) {\r\n            if (canvasPoint.x > left + (i - 1) * distance && canvasPoint.x < left + (i - 1) * distance + blockwidth && canvasPoint.y > graphtop && canvasPoint.y < graphtop + blockheight) {\r\n                if (i !== lastShowBlock) {\r\n                    ctx.textAlign = \"center\";\r\n                    ctx.font = fontsize + \"px Arial\";\r\n                    ctx.fillStyle = \"#000000\";\r\n                    ctx.fillText(i.toString(), left + (i - 1) * distance + 0.5 * blockwidth, graphtop + 0.6 * blockheight);\r\n                    drawMemBlock(lastShowBlock - 1);\r\n                    lastShowBlock = i;\r\n                    var windowObjectReference;\r\n                    var strWindowFeatures = \"menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes\";\r\n                    alert(\"send a web socket to infiniswap\");\r\n\r\n                    switch (mem_status[i - 1]) {\r\n                        case '0':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is either free or used by local program.\";\r\n                            break;\r\n                        case '1':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is allocated but not used.\";\r\n                            break;\r\n                        case '2':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is being used by device: \" + mapped_chunks[i] + \", chunk: 0.\";\r\n                            break;\r\n                    }\r\n                }\r\n                inblock = true;\r\n            }\r\n        }\r\n        if (!inblock) {\r\n            drawMemBlock(lastShowBlock - 1);\r\n            lastShowBlock = 0;\r\n            document.getElementById('chunk_info').innerHTML = \"\";\r\n        }\r\n        moving = false;\r\n      \r\n    }, false);\r\n</script>",
+      "content": "<canvas id=\"myCanvas\">\r\n</canvas>\r\n<p id=\"chunk_info\"> </p>\r\n<form name=\"data\">\r\n    <input type=\"hidden\" name=\"mem_status\" value=$mem_status />\r\n    <input type=\"hidden\" name=\"chunk_mapping\" value=$chunk_mapping />\r\n    <input type=\"hidden\" name=\"device_ip\" value=$device_ip />\r\n</form>\r\n<script>\r\n\r\n    var mem_status = document.data.mem_status.value;\r\n    var chunk_mapping = document.data.chunk_mapping.value.substring(1, document.data.chunk_mapping.value.length - 1).split(',');\r\n\r\n\r\n    var mapped_chunks = new Object();\r\n \r\n    function read_mapping() {\r\n      \r\n         var chunk = -1;\r\n        var ip = \"\";\r\n        var lastpart = \"nothing\";\r\n        for (var part of chunk_mapping) {\r\n            if (part.length <= 2) {\r\n                if (lastpart.length <= 2) {\r\n                    mapped_chunks[lastpart] = ip;\r\n                }\r\n                chunk = part;\r\n            }\r\n            else {\r\n                ip = part;\r\n                mapped_chunks[chunk] = ip;\r\n            }\r\n            lastpart = part;\r\n        }\r\n        if (lastpart.length <= 2) {\r\n            mapped_chunks[lastpart] = ip;\r\n        }\r\n    }\r\n\r\n    read_mapping();\r\n\r\n    var num = 32;\r\n    var canvas = document.getElementById(\"myCanvas\");\r\n    canvas.width = window.innerWidth * 8.6 / 10;\r\n    canvas.height = window.innerWidth / 10;\r\n    var ctx = canvas.getContext(\"2d\");\r\n    var left = canvas.width / (num + 2);\r\n    var right = canvas.width * (num + 1) / (num + 2);\r\n    var blockwidth = canvas.width / num * 4 / 5;\r\n    var distance = canvas.width / (num + 2);\r\n    var blockheight = canvas.height / 4 * 3;\r\n    var graphtop = canvas.height / 8;\r\n    var fontsize = canvas.height / 8;\r\n    var lastShowBlock = 0;\r\n    var moving = false;\r\n\r\n    function drawMemBlock(i) {\r\n        if (i < 0) {\r\n            return;\r\n        }\r\n        var type = mem_status[i];\r\n        switch (type) {\r\n            case '0':\r\n                ctx.fillStyle = \"#EEEEEE\";\r\n                break;\r\n            case '1':\r\n                ctx.fillStyle = \"#00FFFF\";\r\n                break;\r\n            case '2':\r\n                ctx.fillStyle = \"#FF0000\";\r\n                break;\r\n        }\r\n        ctx.fillRect(left + distance * i, graphtop, blockwidth, blockheight);\r\n        \r\n        ctx.fillRect(left + distance * i, graphtop+blockheight*1.5, blockwidth, blockheight/2);\r\n    }\r\n    \r\n    function drawMemBlocks() {\r\n        num = mem_status.length;\r\n        for (var i = 0; i < num; i++) {\r\n            drawMemBlock(i);\r\n        }\r\n    }\r\n\r\n    drawMemBlocks();\r\n\r\n    setInterval(function () {\r\n        var new_mem_status = document.data.mem_status.value;\r\n        if (new_mem_status !== mem_status) {\r\n            mem_status = new_mem_status;\r\n            drawMemBlocks();\r\n            read_mapping();\r\n        }\r\n    }, 5000);\r\n    \r\n    // initialize array\r\n    var check = [];\r\n    for (var i = 1; i <= num; i++) {\r\n        check.push(false);\r\n    }\r\n\r\n    canvas.onmousemove = function (e) {\r\n        if (moving) {\r\n            return;\r\n        }\r\n        moving = true;\r\n        var rect = this.getBoundingClientRect();\r\n        var canvasPoint = {\r\n            x: e.clientX - rect.left,\r\n            y: e.clientY - rect.top\r\n        };\r\n\r\n        var inblock = false;\r\n        for (var i = 1; i <= num; i++) {\r\n            if (canvasPoint.x > left + (i - 1) * distance && canvasPoint.x < left + (i - 1) * distance + blockwidth && canvasPoint.y > graphtop && canvasPoint.y < graphtop + blockheight) {\r\n                if (i !== lastShowBlock) {\r\n                    ctx.textAlign = \"center\";\r\n                    ctx.font = fontsize + \"px Arial\";\r\n                    ctx.fillStyle = \"#000000\";\r\n                    ctx.fillText(i.toString(), left + (i - 1) * distance + 0.5 * blockwidth, graphtop + 0.6 * blockheight);\r\n                    drawMemBlock(lastShowBlock - 1);\r\n                    lastShowBlock = i;\r\n                   canvas.addEventListener('click', function (event) {\r\n                        console.log(lastShowBlock);\r\n                        console.log(\"check\", check[lastShowBlock-1]);\r\n                        if (check[lastShowBlock - 1] === false) {\r\n                            check[lastShowBlock - 1] = true;\r\n                            var windowObjectReference;\r\n                            var strWindowFeatures = \"menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes\";\r\n                            var message = \"send a websocket to infiniswap, daemon \";\r\n                            var chunk = lastShowBlock;\r\n                            message += chunk.toString();\r\n                            alert(message);\r\n                            var device_ip = document.data.device_ip.value;\r\n                            var url = \"http://128.110.96.133:4000/evt/\";\r\n                            url = url + device_ip.toString();\r\n                            url = url + \"/\";\r\n                            url = url + chunk.toString();\r\n                            console.log(\"url\",url);\r\n                            \r\n                            var request = new XMLHttpRequest();\r\n                            request.open('GET', url);\r\n                            request.setRequestHeader('Access-Control-Allow-Credentials', 'true');\r\n                            request.send();\r\n                        }\r\n                    }, false);\r\n\r\n                    switch (mem_status[i - 1]) {\r\n                        case '0':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is either free or used by local program.\";\r\n                            break;\r\n                        case '1':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is allocated but not used.\";\r\n                            break;\r\n                        case '2':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is being used by device: \" + mapped_chunks[i];\r\n                            break;\r\n                    }\r\n                }\r\n                inblock = true;\r\n            }\r\n        }\r\n        if (!inblock) {\r\n            drawMemBlock(lastShowBlock - 1);\r\n            lastShowBlock = 0;\r\n            document.getElementById('chunk_info').innerHTML = \"\";\r\n        }\r\n        moving = false;\r\n    };\r\n    \r\n    canvas.addEventListener('click', function(e) { \r\n      if (moving) {\r\n            return;\r\n        }\r\n        moving = true;\r\n        var rect = this.getBoundingClientRect();\r\n        var canvasPoint = {\r\n            x: e.clientX - rect.left,\r\n            y: e.clientY - rect.top\r\n        };\r\n\r\n        var inblock = false;\r\n        for (var i = 1; i <= num; i++) {\r\n            if (canvasPoint.x > left + (i - 1) * distance && canvasPoint.x < left + (i - 1) * distance + blockwidth && canvasPoint.y > graphtop && canvasPoint.y < graphtop + blockheight) {\r\n                if (i !== lastShowBlock) {\r\n                    ctx.textAlign = \"center\";\r\n                    ctx.font = fontsize + \"px Arial\";\r\n                    ctx.fillStyle = \"#000000\";\r\n                    ctx.fillText(i.toString(), left + (i - 1) * distance + 0.5 * blockwidth, graphtop + 0.6 * blockheight);\r\n                    drawMemBlock(lastShowBlock - 1);\r\n                    lastShowBlock = i;\r\n                    var windowObjectReference;\r\n                    var strWindowFeatures = \"menubar=yes,location=yes,resizable=yes,scrollbars=yes,status=yes\";\r\n                    alert(\"send a web socket to infiniswap\");\r\n\r\n                    switch (mem_status[i - 1]) {\r\n                        case '0':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is either free or used by local program.\";\r\n                            break;\r\n                        case '1':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is allocated but not used.\";\r\n                            break;\r\n                        case '2':\r\n                            document.getElementById('chunk_info').innerHTML = \"This chunk is being used by device: \" + mapped_chunks[i] + \", chunk: 0.\";\r\n                            break;\r\n                    }\r\n                }\r\n                inblock = true;\r\n            }\r\n        }\r\n        if (!inblock) {\r\n            drawMemBlock(lastShowBlock - 1);\r\n            lastShowBlock = 0;\r\n            document.getElementById('chunk_info').innerHTML = \"\";\r\n        }\r\n        moving = false;\r\n      \r\n    }, false);\r\n\r\n    window.onresize = function(event) {\r\n        \r\n    };\r\n</script>",
       "gridPos": {
-        "h": 6,
+        "h": 7,
         "w": 24,
         "x": 0,
         "y": 0
@@ -38,7 +38,7 @@
       "id": 4,
       "links": [],
       "mode": "html",
-      "title": "Panel Title",
+      "title": "Slab Usage",
       "type": "text"
     },
     {
@@ -56,7 +56,7 @@
         "h": 10,
         "w": 9,
         "x": 0,
-        "y": 6
+        "y": 7
       },
       "id": 2,
       "interval": null,
@@ -90,7 +90,7 @@
           "refId": "C"
         }
       ],
-      "title": "Panel Title",
+      "title": "Slab Usage Pie Chart",
       "type": "grafana-piechart-panel",
       "valueName": "current"
     },
@@ -105,7 +105,7 @@
         "h": 10,
         "w": 15,
         "x": 9,
-        "y": 6
+        "y": 7
       },
       "id": 6,
       "legend": {
@@ -119,6 +119,7 @@
       },
       "lines": true,
       "linewidth": 1,
+      "links": [],
       "nullPointMode": "null",
       "percentage": false,
       "pointradius": 5,
@@ -151,7 +152,7 @@
       "thresholds": [],
       "timeFrom": null,
       "timeShift": null,
-      "title": "Panel Title",
+      "title": "Slab Usage History",
       "tooltip": {
         "shared": true,
         "sort": 0,
@@ -198,8 +199,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "192.168.0.57",
-          "value": "192.168.0.57"
+          "isNone": true,
+          "text": "None",
+          "value": ""
         },
         "datasource": "Infiniswap",
         "hide": 0,
@@ -208,10 +210,10 @@
         "multi": false,
         "name": "device_ip",
         "options": [],
-        "query": "select dev_ip from daemon order by time desc limit $daemon_num;",
+        "query": "select dev_ip from (select * from daemon order by time desc) as t group by t.dev_ip limit $daemon_num;",
         "refresh": 2,
         "regex": "",
-        "sort": 0,
+        "sort": 1,
         "tagValuesQuery": "",
         "tags": [],
         "tagsQuery": "",
@@ -221,8 +223,9 @@
       {
         "allValue": null,
         "current": {
-          "text": "22222111111111111111111111111111",
-          "value": "22222111111111111111111111111111"
+          "isNone": true,
+          "text": "None",
+          "value": ""
         },
         "datasource": "Infiniswap",
         "hide": 2,
@@ -244,8 +247,8 @@
       {
         "allValue": null,
         "current": {
-          "text": "2",
-          "value": "2"
+          "text": "0",
+          "value": "0"
         },
         "datasource": "Infiniswap",
         "hide": 2,
@@ -271,7 +274,7 @@
           "value": "$__all"
         },
         "datasource": "Infiniswap",
-        "hide": 0,
+        "hide": 2,
         "includeAll": true,
         "label": null,
         "multi": false,
@@ -321,5 +324,5 @@
   "timezone": "",
   "title": "daemon",
   "uid": "ztudW-Iiz",
-  "version": 32
+  "version": 3
 }
